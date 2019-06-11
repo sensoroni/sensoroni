@@ -1,7 +1,7 @@
 // Copyright 2019 Jason Ertel (jertel). All rights reserved.
 //
 // This program is distributed under the terms of version 2 of the
-// GNU Public License.  See LICENSE for further details.
+// GNU General Public License.  See LICENSE for further details.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,11 +16,11 @@ const data = {
   message: "",
   dark: true,
   toolbar: null,
-  apiUrl: '/api/',
+  apiUrl: location.origin + location.pathname + 'api/',
   version: '0.0',
-  versionLink: 'https://sensoroni.com/releases',
+  versionLink: 'https://github.com/sensoroni/sensoroni/releases/',
   license: '',
-  licenseLink: 'https://sensoroni.com/license',
+  licenseLink: 'https://raw.githubusercontent.com/sensoroni/sensoroni/master/LICENSE',
 };
 const routes = [];
 
@@ -30,7 +30,7 @@ methods.loadInfo = async function() {
   try {
     const response = await papi.get('info');
     data.version = response.data.version;
-    data.versionLink = "https://sensoroni.com/releases/" + data.version;
+    data.versionLink = "https://github.com/sensoroni/sensoroni/releases/tag/" + data.version;
     data.license = response.data.license;
   } catch (error) {
     methods.showError(error);
