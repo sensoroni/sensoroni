@@ -15,6 +15,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"math"
 	"net"
 	"net/http"
 	"strconv"
@@ -174,9 +175,10 @@ func (elastic *SoElastic) LookupEsId(esId string) (string, *model.Filter, error)
 						filter.SrcPort = int(gjson.Get(json, "hits.hits." + idxStr + "._source.source_port").Int())
 						filter.DstIp = gjson.Get(json, "hits.hits." + idxStr + "._source.destination_ip").String()
 						filter.DstPort = int(gjson.Get(json, "hits.hits." + idxStr + "._source.destination_port").Int())
-						duration := gjson.Get(json, "hits.hits." + idxStr + "._source.duration").Int()
-						filter.BeginTime = closestTimestamp.Add(time.Duration(-duration - int64(elastic.timeShiftMs)) * time.Second)
-						filter.EndTime = closestTimestamp.Add(time.Duration(duration + int64(elastic.timeShiftMs)) * time.Second)
+						durationFloat := gjson.Get(json, "hits.hits." + idxStr + "._source.duration").Float()
+						duration := int64(math.Round(durationFloat * 1000.0))
+						filter.BeginTime = closestTimestamp.Add(time.Duration(-duration - int64(elastic.timeShiftMs)) * time.Millisecond)
+						filter.EndTime = closestTimestamp.Add(time.Duration(duration + int64(elastic.timeShiftMs)) * time.Millisecond)
 						outputSensorId = gjson.Get(json, "hits.hits." + idxStr + "._source.sensor_name").String()
 						log.WithFields(log.Fields{
 							"sensorId": outputSensorId, 

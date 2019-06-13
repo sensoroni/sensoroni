@@ -12,6 +12,7 @@ package securityonion
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"github.com/sensoroni/sensoroni/server"
 	"github.com/sensoroni/sensoroni/web"
 )
@@ -41,6 +42,10 @@ func (handler *SoJobLookupHandler) HandleNow(writer http.ResponseWriter, request
 func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
 	statusCode := http.StatusBadRequest
 	esId := request.URL.Query().Get("esid")
+	redirectUrl := request.URL.Query().Get("redirectUrl")
+	if redirectUrl == "" {
+		redirectUrl = "/"
+	}
 	sensorId, filter, err := handler.elastic.LookupEsId(esId)
 	if err == nil {
 		job := handler.server.Datastore.CreateJob()
@@ -49,7 +54,8 @@ func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http
 		err = handler.server.Datastore.AddJob(job)
 		if err == nil {
 			statusCode = http.StatusOK
-			http.Redirect(writer, request, "/", http.StatusFound)
+			redirectUrl = redirectUrl + "#/job/" + strconv.Itoa(job.Id)
+			http.Redirect(writer, request, redirectUrl, http.StatusFound)
 		}
 	} else {
 		statusCode = http.StatusNotFound
