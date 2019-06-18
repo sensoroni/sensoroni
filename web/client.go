@@ -11,6 +11,7 @@ package web
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io"
@@ -30,11 +31,14 @@ type Client struct {
 	impl	    	*http.Client
 }
 
-func NewClient(url string) *Client {
+func NewClient(url string, verifyCert bool) *Client {
 	client := &Client {
 		hostUrl: url,
 	}
-	client.impl = &http.Client{}
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !verifyCert},
+	}
+	client.impl = &http.Client{Transport: transport}
 	return client
 }
 

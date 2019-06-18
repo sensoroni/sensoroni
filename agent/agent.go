@@ -26,7 +26,7 @@ type Agent struct {
 func NewAgent(cfg *config.AgentConfig, version string) *Agent {
 	agent := &Agent{
 		Config: cfg,
-		Client: web.NewClient(cfg.ServerUrl),
+		Client: web.NewClient(cfg.ServerUrl, cfg.VerifyCert),
 		stoppedChan: make(chan bool, 1),
 		Version: version,
 	}

@@ -9,7 +9,6 @@
 
 FROM golang:latest
 ARG SENSORONI_VERSION
-RUN mkdir -p golang ins/go/src/github.com/sensoroni/sensoroni
 RUN apt -y update && apt -y install libpcap-dev
 COPY . /go/src/github.com/sensoroni/sensoroni
 WORKDIR /go/src/github.com/sensoroni/sensoroni

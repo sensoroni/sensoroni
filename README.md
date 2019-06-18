@@ -54,7 +54,7 @@ Implements the Auth module by specifying a shared key that both the agents and t
 
 ### securityonion (server)
 
-A custom module that integrates Sensoroni with  [Security Onion](https://securityonion.net). This module provides a new endpoint, /securityonion/joblookup?esid=xyz, where xyz is the Elasticsearch document ID containing the desired packet source, target, and date ranges to retrieve.
+A custom module that integrates Sensoroni with  [Security Onion](https://securityonion.net). This module provides a new endpoint, /securityonion/joblookup?esid=xyz&redirectUrl=/, where xyz is the Elasticsearch document ID containing the desired packet source, target, and date ranges to retrieve. The redirectUrl parameter is available to accomodate reverse proxy configurations.
 
 ### stenoquery (agent)
 

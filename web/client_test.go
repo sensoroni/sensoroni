@@ -14,7 +14,7 @@ import (
 )
 
 func TestFormatUrl(tester *testing.T) {
-	client := NewClient("http://some.where/path")
+	client := NewClient("http://some.where/path", true)
 	var testTable = []struct {
 		url string
 		path string

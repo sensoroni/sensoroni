@@ -20,7 +20,10 @@ func TestVerifyAgent(tester *testing.T) {
 		tester.Errorf("expected PollIntervalMs %d but got %d", DEFAULT_POLL_INTERVAL_MS, cfg.PollIntervalMs)
 	}
 	if cfg.SensorId == "" {
-		tester.Errorf("expected non-nil SensorId error")
+		tester.Errorf("expected non-empty SensorId")
+	}
+	if cfg.VerifyCert == true {
+		tester.Errorf("expected VerifyCert to be false")
 	}
 	if err == nil {
 		tester.Errorf("expected ServerUrl error")
