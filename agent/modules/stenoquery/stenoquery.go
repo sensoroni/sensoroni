@@ -102,7 +102,15 @@ func (steno *StenoQuery) ProcessJob(job *model.Job, reader io.ReadCloser) (io.Re
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(steno.timeoutMs) * time.Millisecond)
 		defer cancel()
 		cmd := exec.CommandContext(ctx, steno.executablePath, query, "-w", pcapFilepath)
-		err = cmd.Run()
+		var output []byte
+		output, err = cmd.CombinedOutput()
+		log.WithFields(log.Fields {
+			"executablePath": steno.executablePath,
+			"query": query,
+			"output": output,
+			"pcapFilepath": pcapFilepath,
+			"err": err,
+			}).Debug("Executed stenoread")
 		if err == nil {
 			var file *os.File
 			file, err = os.Open(pcapFilepath)
