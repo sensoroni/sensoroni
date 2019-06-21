@@ -14,6 +14,6 @@ version=${1:-dev}
 buildTime=`date +%Y-%m-%dT%H:%M:%S.%N%:z`
 
 go get ./...
-go build -ldflags '-extldflags "-static"' cmd/sensoroni.go
+go build -ldflags '-extldflags "-static"' -tags netgo cmd/sensoroni.go
 
 echo "{\"label\":\"$version\",\"buildTime\":\"$buildTime\"}" > version.json
