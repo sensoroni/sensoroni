@@ -41,7 +41,7 @@ func (mgr *JobManager) Start() {
 		mgr.updateDataEpoch()
 		job, err := mgr.PollPendingJobs()
 		if err != nil {
-			log.WithError(err).Error("Failed to poll for pending jobs")
+			log.WithError(err).Warn("Failed to poll for pending jobs")
 			time.Sleep(time.Duration(mgr.agent.Config.PollIntervalMs) * time.Millisecond)
 		} else if job == nil {
 			log.Debug("No pending jobs available")

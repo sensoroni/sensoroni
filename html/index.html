@@ -162,8 +162,8 @@
                       <div><span class="filter label">{{ i18n.srcPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.srcPort }}</span></div>
                       <div><span class="filter label">{{ i18n.dstIp }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstIp }}</span></div>
                       <div><span class="filter label">{{ i18n.dstPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstPort }}</span></div>
-                      <div><span class="filter label">{{ i18n.beginTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.beginTime | formatDateTime }}</span></div>
-                      <div><span class="filter label">{{ i18n.endTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.endTime | formatDateTime }}</span></div>
+                      <div><span class="filter label">{{ i18n.beginTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.beginTime | formatTimestamp }}</span></div>
+                      <div><span class="filter label">{{ i18n.endTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.endTime | formatTimestamp }}</span></div>
                     </v-flex>
                   </v-layout>
                 </v-container>
@@ -242,8 +242,8 @@
         </v-layout>
         <v-layout v-if="job.status == 2">
           <v-flex>
-            <v-alert :value="true" color="warning" icon="warning">
-              {{ i18n.jobFailed }}
+            <v-alert :value="true" color="info" icon="warning">
+              {{ i18n.jobIncomplete }}
               <hr>
               {{ job.failTime | formatDateTime }}
               <br>

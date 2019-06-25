@@ -98,7 +98,7 @@ routes.push({ path: '/', name: 'jobs', component: {
       if (job.status == 1) {
         status = i18n.completed;
       } else if (job.status == 2) {
-        status = i18n.failed;
+        status = i18n.incomplete;
       }
       return status;
     }

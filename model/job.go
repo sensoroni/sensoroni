@@ -15,7 +15,7 @@ import (
 
 const JobStatusPending = 0
 const JobStatusCompleted = 1
-const JobStatusFailed = 2
+const JobStatusIncomplete = 2
 
 type Job struct {
 	Id												int											`json:"id"`
@@ -48,7 +48,7 @@ func (job *Job) Complete() {
 }
 
 func (job *Job) Fail(err error) {
-	job.Status = JobStatusFailed
+	job.Status = JobStatusIncomplete
 	job.Failure = err.Error()
 	job.FailTime = time.Now()
 	job.FailCount++

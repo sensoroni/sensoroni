@@ -8,6 +8,19 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
+.v-navigation-drawer>.v-list .v-list__tile--active .v-list__tile__title {
+  color: rgb(80, 186, 221);
+}
+
+.v-list__tile--active .v-list__tile__action:first-of-type .v-icon {
+  color: rgb(80, 186, 221);
+}
+
+.v-alert.v-alert {
+  border-color: #55788d;
+  background-color: #55788d !important;
+}
+
 .v-chip.ICMP,.v-chip.ICMPv4,.v-chip.ICMPv6,.v-chip.ICMPv6RouterAdvertisement {
   background-color: #7c7c7c;
 }
@@ -58,6 +71,10 @@
 
 .v-chip.Completed {
   background-color: #7ab487;
+}
+
+.v-chip.Incomplete {
+  background-color: #55788d;
 }
 
 .v-chip.Pending {

@@ -85,7 +85,7 @@ func (client *Client) SendAuthorizedRequest(method string, path string, contentT
 				}).Debug("Sending authorized request")
 				resp, err = client.impl.Do(req)
 				if err != nil {
-					log.WithError(err).Error("Failed to submit request")
+					log.WithError(err).Warn("Failed to submit request")
 				}
 			}
 		}

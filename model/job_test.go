@@ -21,8 +21,8 @@ func TestVerifyJob(tester *testing.T) {
 	}
 
 	job.Fail(errors.New("one"))
-	if job.Status != JobStatusFailed {
-		tester.Errorf("expected Status %d but got %d", JobStatusFailed, job.Status)
+	if job.Status != JobStatusIncomplete {
+		tester.Errorf("expected Status %d but got %d", JobStatusIncomplete, job.Status)
 	}
 	if job.Failure == "" {
 		tester.Errorf("expected Failure but got none")

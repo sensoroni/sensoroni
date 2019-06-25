@@ -7,22 +7,28 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-FROM golang:latest
+FROM golang:alpine as builder
 ARG SENSORONI_VERSION
-RUN apt -y update && apt -y install libpcap-dev
+RUN apk update && apk add libpcap-dev bash git musl-dev gcc
 COPY . /go/src/github.com/sensoroni/sensoroni
 WORKDIR /go/src/github.com/sensoroni/sensoroni
 RUN ./build.sh "$SENSORONI_VERSION"
 
 FROM alpine:latest
-RUN mkdir -p /opt/sensoroni/jobs
+RUN apk update && apk add tzdata ca-certificates && update-ca-certificates
+RUN adduser -D -g '' sensoroni
+RUN mkdir -p /opt/sensoroni/jobs && chown sensoroni /opt/sensoroni/jobs
+RUN mkdir -p /opt/sensoroni/logs && chown sensoroni /opt/sensoroni/logs
 WORKDIR /opt/sensoroni
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/sensoroni .
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/html ./html
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/COPYING .
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/LICENSE .
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/README.md .
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/sensoroni.json .
-COPY --from=0 /go/src/github.com/sensoroni/sensoroni/version.json .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/sensoroni .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/html ./html
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/COPYING .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/LICENSE .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/README.md .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/sensoroni.json .
+COPY --from=builder /go/src/github.com/sensoroni/sensoroni/version.json .
+USER sensoroni
 EXPOSE 9822/tcp
+VOLUME /opt/sensoroni/jobs
+VOLUME /opt/sensoroni/logs
 ENTRYPOINT ["/opt/sensoroni/sensoroni"]

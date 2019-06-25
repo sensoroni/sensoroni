@@ -56,9 +56,6 @@ func TestSensors(tester *testing.T) {
 	if len(sensors) != 2 {
 		tester.Errorf("expected %d sensors but got %d", 2, len(sensors))
 	}
-	if sensors[1].Id != "bar" {
-		tester.Errorf("expected sensor.Id %s but got %s", "bar", sensors[1].Id)
-	}
 	job := ds.GetNextJob("foo")
 	if job != nil {
 		tester.Errorf("expected no job")
@@ -103,12 +100,6 @@ func TestJobs(tester *testing.T) {
 	jobs := ds.GetJobs()
 	if len(jobs) != 2 {
 		tester.Errorf("expected GetJobs array size to be %d but got %d", 2, len(jobs))
-	}
-	if jobs[0].Id != 1001 {
-		tester.Errorf("expected GetJobs() first job.Id %d but got %d", 1001, jobs[0].Id)
-	}
-	if jobs[1].Id != 1002 {
-		tester.Errorf("expected GetJobs() first job.Id %d but got %d", 1002, jobs[1].Id)
 	}
 
 	// Test deleting jobs

@@ -29,6 +29,7 @@ const DEFAULT_PCAP_OUTPUT_PATH = "/nsm/pcapout"
 const DEFAULT_PCAP_INPUT_PATH = "/nsm/pcap"
 const DEFAULT_EPOCH_REFRESH_MS = 120000
 const DEFAULT_TIMEOUT_MS = 1200000
+const DEFAULT_DATA_LAG_MS = 120000
 
 type StenoQuery struct {
 	config						module.ModuleConfig
@@ -41,6 +42,7 @@ type StenoQuery struct {
 	epochRefreshTime	time.Time
 	epochRefreshMs		int
 	timeoutMs					int
+	dataLagMs					int
 }
 
 func NewStenoQuery(agt *agent.Agent) *StenoQuery {
@@ -49,42 +51,46 @@ func NewStenoQuery(agt *agent.Agent) *StenoQuery {
 	}
 }
 
-func (sqmodule *StenoQuery) PrerequisiteModules() []string {
+func (lag *StenoQuery) PrerequisiteModules() []string {
 	return nil
 }
 
-func (sqmodule *StenoQuery) Init(cfg module.ModuleConfig) error {
+func (steno *StenoQuery) Init(cfg module.ModuleConfig) error {
 	var err error
-	sqmodule.config = cfg
-	sqmodule.executablePath = module.GetStringDefault(cfg, "executablePath", DEFAULT_EXECUTABLE_PATH)
-	sqmodule.pcapOutputPath = module.GetStringDefault(cfg, "pcapOutputPath", DEFAULT_PCAP_OUTPUT_PATH)
-	sqmodule.pcapInputPath = module.GetStringDefault(cfg, "pcapInputPath", DEFAULT_PCAP_INPUT_PATH)
-	sqmodule.epochRefreshMs = module.GetIntDefault(cfg, "epochRefreshMs", DEFAULT_EPOCH_REFRESH_MS)
-	sqmodule.timeoutMs = module.GetIntDefault(cfg, "timeoutMs", DEFAULT_TIMEOUT_MS)
-	if sqmodule.agent == nil {
+	steno.config = cfg
+	steno.executablePath = module.GetStringDefault(cfg, "executablePath", DEFAULT_EXECUTABLE_PATH)
+	steno.pcapOutputPath = module.GetStringDefault(cfg, "pcapOutputPath", DEFAULT_PCAP_OUTPUT_PATH)
+	steno.pcapInputPath = module.GetStringDefault(cfg, "pcapInputPath", DEFAULT_PCAP_INPUT_PATH)
+	steno.epochRefreshMs = module.GetIntDefault(cfg, "epochRefreshMs", DEFAULT_EPOCH_REFRESH_MS)
+	steno.timeoutMs = module.GetIntDefault(cfg, "timeoutMs", DEFAULT_TIMEOUT_MS)
+	steno.dataLagMs = module.GetIntDefault(cfg, "dataLagMs", DEFAULT_DATA_LAG_MS)
+	if steno.agent == nil {
 		err = errors.New("Unable to invoke JobMgr.AddJobProcessor due to nil agent")
 	} else {
-		sqmodule.agent.JobMgr.AddJobProcessor(sqmodule)
+		steno.agent.JobMgr.AddJobProcessor(steno)
 	}
 	return err
 }
 
-func (sqmodule *StenoQuery) Start() error {
+func (steno *StenoQuery) Start() error {
 	return nil
 }
 
-func (sqmodule *StenoQuery) Stop() error {
+func (steno *StenoQuery) Stop() error {
 	return nil
 }
 
-func (sqmodule *StenoQuery) IsRunning() bool {
+func (steno *StenoQuery) IsRunning() bool {
 	return false
 }
 
+func (steno *StenoQuery) getDataLagDate() time.Time {
+	return time.Now().Add(time.Duration(-steno.dataLagMs) * time.Millisecond)
+}
 
 func (steno *StenoQuery) ProcessJob(job *model.Job, reader io.ReadCloser) (io.ReadCloser, error) {
 	var err error
-	if job.Filter == nil || job.Filter.EndTime.Before(steno.GetDataEpoch()) {
+	if job.Filter == nil || job.Filter.EndTime.Before(steno.GetDataEpoch()) || job.Filter.EndTime.After(steno.getDataLagDate()) {
 		err = errors.New("No data available for the requested dates")
 	} else {
 		job.FileExtension = "pcap"

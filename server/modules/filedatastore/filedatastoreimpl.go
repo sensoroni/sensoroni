@@ -118,7 +118,7 @@ func (datastore *FileDatastoreImpl) GetNextJob(sensorId string) *model.Job {
 		retryTime := job.FailTime.Add(time.Millisecond * time.Duration(datastore.retryFailureIntervalMs))
 		if job.Status != model.JobStatusCompleted && 
 			 (nextJob == nil || job.CreateTime.Before(nextJob.CreateTime)) && 
-			 (job.Status != model.JobStatusFailed || retryTime.Before(now)) {
+			 (job.Status != model.JobStatusIncomplete || retryTime.Before(now)) {
 			nextJob = job
 		}
 	}
@@ -277,7 +277,7 @@ func (datastore *FileDatastoreImpl) GetPackets(jobId int, offset int, count int)
 		if job.Status == model.JobStatusCompleted {
 			packets, err = packet.ParsePcap(datastore.getStreamFilename(job), offset, count)
 			if err != nil {
-				log.WithError(err).WithField("jobId", job.Id).Error("Failed to parse captured packets")
+				log.WithError(err).WithField("jobId", job.Id).Warn("Failed to parse captured packets")
 				err = nil
 			}
 		}

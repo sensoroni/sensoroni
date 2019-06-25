@@ -1,6 +1,6 @@
 {
   "logLevel": "info",
-  "logFilename": "sensoroni.log",
+  "logFilename": "logs/sensoroni.log",
   "server": {
     "bindAddress": "0.0.0.0:9822",
     "maxPacketCount": 5000,

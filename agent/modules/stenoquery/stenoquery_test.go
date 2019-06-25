@@ -11,6 +11,7 @@ package stenoquery
 
 import (
 	"testing"
+	"time"
 )
 
 func TestInitStenoQuery(tester *testing.T) {
@@ -34,5 +35,18 @@ func TestInitStenoQuery(tester *testing.T) {
 	}
 	if sq.timeoutMs != DEFAULT_TIMEOUT_MS {
 		tester.Errorf("expected timeoutMs of %d but got %d", DEFAULT_TIMEOUT_MS, sq.timeoutMs)
+	}
+	if sq.dataLagMs != DEFAULT_DATA_LAG_MS {
+		tester.Errorf("expected dataLagMs of %d but got %d", DEFAULT_DATA_LAG_MS, sq.dataLagMs)
+	}
+}
+
+func TestDataLag(tester *testing.T) {
+	cfg := make(map[string]interface{})
+	sq := NewStenoQuery(nil)
+	sq.Init(cfg)
+	lagDate := sq.getDataLagDate()
+	if lagDate.After(time.Now()) {
+		tester.Errorf("expected data lag date to be before current date")
 	}
 }
