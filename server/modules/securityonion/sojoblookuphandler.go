@@ -10,57 +10,58 @@
 package securityonion
 
 import (
-	"errors"
-	"net/http"
-	"strconv"
-	"github.com/sensoroni/sensoroni/server"
-	"github.com/sensoroni/sensoroni/web"
+  "errors"
+  "net/http"
+  "strconv"
+  "github.com/sensoroni/sensoroni/server"
+  "github.com/sensoroni/sensoroni/web"
 )
 
 type SoJobLookupHandler struct {
-	web.BaseHandler
-	server							*server.Server
-	elastic 						*SoElastic
+  web.BaseHandler
+  server							*server.Server
+  elastic 						*SoElastic
 }
 
 func NewSoJobLookupHandler(srv *server.Server, elastic *SoElastic) *SoJobLookupHandler {
-	handler := &SoJobLookupHandler {}
-	handler.Host = srv.Host
-	handler.server = srv
-	handler.BaseHandler.Impl = handler
-	handler.elastic = elastic
-	return handler
+  handler := &SoJobLookupHandler {}
+  handler.Host = srv.Host
+  handler.server = srv
+  handler.BaseHandler.Impl = handler
+  handler.elastic = elastic
+  return handler
 }
 
 func (handler *SoJobLookupHandler) HandleNow(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	switch request.Method {
-		case http.MethodGet: return handler.get(writer, request)
-	}
-	return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
+  switch request.Method {
+    case http.MethodGet: return handler.get(writer, request)
+  }
+  return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
 }
 
 func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	statusCode := http.StatusBadRequest
-	esId := request.URL.Query().Get("esid")
-	redirectUrl := request.URL.Query().Get("redirectUrl")
-	if redirectUrl == "" {
-		redirectUrl = "/"
-	}
-	sensorId, filter, err := handler.elastic.LookupEsId(esId)
-	if err == nil {
-		job := handler.server.Datastore.CreateJob()
-		job.SensorId = sensorId
-		job.Filter = filter
-		err = handler.server.Datastore.AddJob(job)
-		if err == nil {
-			statusCode = http.StatusOK
-			redirectUrl = redirectUrl + "#/job/" + strconv.Itoa(job.Id)
-			http.Redirect(writer, request, redirectUrl, http.StatusFound)
-		}
-	} else {
-		statusCode = http.StatusNotFound
-		http.Error(writer, "Elasticsearch document was not found", http.StatusNotFound)
-		err = nil
-	}
-	return statusCode, nil, err
+  statusCode := http.StatusBadRequest
+  esId := request.URL.Query().Get("esid")
+  redirectUrl := request.URL.Query().Get("redirectUrl")
+  if redirectUrl == "" {
+    redirectUrl = "/"
+  }
+  sensorId, filter, err := handler.elastic.LookupEsId(esId)
+  if err == nil {
+    job := handler.server.Datastore.CreateJob()
+    job.SensorId = sensorId
+    job.Filter = filter
+    err = handler.server.Datastore.AddJob(job)
+    if err == nil {
+      handler.Host.Broadcast("job", job)
+      statusCode = http.StatusOK
+      redirectUrl = redirectUrl + "#/job/" + strconv.Itoa(job.Id)
+      http.Redirect(writer, request, redirectUrl, http.StatusFound)
+    }
+  } else {
+    statusCode = http.StatusNotFound
+    http.Error(writer, "Elasticsearch document was not found", http.StatusNotFound)
+    err = nil
+  }
+  return statusCode, nil, err
 }

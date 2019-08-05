@@ -10,31 +10,31 @@
 package server
 
 import (
-	"errors"
-	"net/http"
-	"github.com/sensoroni/sensoroni/web"
+  "errors"
+  "net/http"
+  "github.com/sensoroni/sensoroni/web"
 )
 
 type JobsHandler struct {
-	web.BaseHandler
-	server 		*Server
+  web.BaseHandler
+  server 		*Server
 }
 
 func NewJobsHandler(srv *Server) *JobsHandler {
-	handler := &JobsHandler {}
-	handler.Host = srv.Host
-	handler.server = srv
-	handler.Impl = handler
-	return handler
+  handler := &JobsHandler {}
+  handler.Host = srv.Host
+  handler.server = srv
+  handler.Impl = handler
+  return handler
 }
 
 func (jobsHandler *JobsHandler) HandleNow(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	switch request.Method {
-		case http.MethodGet: return jobsHandler.get(writer, request)
-	}
-	return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
+  switch request.Method {
+    case http.MethodGet: return jobsHandler.get(writer, request)
+  }
+  return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
 }
 
 func (jobsHandler *JobsHandler) get(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	return http.StatusOK, jobsHandler.server.Datastore.GetJobs(), nil
+  return http.StatusOK, jobsHandler.server.Datastore.GetJobs(), nil
 }

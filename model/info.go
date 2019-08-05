@@ -10,6 +10,6 @@
 package model
 
 type Info struct {
-	Version			string		`json:"version"`
-	License			string		`json:"license"`						
+  Version			string		`json:"version"`
+  License			string		`json:"license"`						
 }

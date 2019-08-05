@@ -17,10 +17,14 @@ const data = {
   dark: true,
   toolbar: null,
   apiUrl: location.origin + location.pathname + 'api/',
+  wsUrl: (location.protocol == 'https' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
   version: '0.0',
   versionLink: 'https://github.com/sensoroni/sensoroni/releases/',
   license: '',
   licenseLink: 'https://raw.githubusercontent.com/sensoroni/sensoroni/master/LICENSE',
+  connectionTimeout: 5000,
+  ws: null,
+  subscriptions: [],
 };
 const routes = [];
 
@@ -70,6 +74,10 @@ methods.showError = function(msg) {
   data.message = msg;
 };
 
+methods.log = function(msg) {
+  console.log(msg);
+}
+
 methods.startLoading = function() {
   data.loading = true;
   data.error = false;
@@ -77,6 +85,45 @@ methods.startLoading = function() {
 
 methods.stopLoading = function() {
   data.loading = false;
+};
+
+methods.subscribe = function(kind, fn) {
+  var list = data.subscriptions[kind];
+  if (list == undefined) {
+    list = [];
+    data.subscriptions[kind] = list;
+  }
+  list.push(fn);
+};
+
+methods.publish = function(kind, obj) {
+  var listeners = data.subscriptions[kind];
+  if (listeners) {
+    listeners.forEach(function(listener) {
+      listener(obj);
+    });
+  }
+}
+
+methods.openWebsocket = function() {
+  if (data.ws == null || data.ws.readyState == WebSocket.CLOSED) {
+    methods.log("WebSocket connecting to " + data.wsUrl);
+    data.ws = new WebSocket(data.wsUrl);
+    data.ws.onopen = function(evt) {
+      methods.log("WebSocket connected");
+    };
+    data.ws.onclose = function(evt) {
+      methods.log("WebSocket closed, will attempt to reconnect");
+      data.ws = null;
+    };
+    data.ws.onmessage = function(evt) {
+      var msg = JSON.parse(evt.data);
+      methods.publish(msg.Kind, msg.Object);
+    };
+    data.ws.onerror = function(evt) {
+      methods.log("WebSocket failure: " + evt.data);
+    };
+  }
 };
 
 $(document).ready(function() {
@@ -97,9 +144,12 @@ $(document).ready(function() {
   });
   $('#app')[0].style.display = "block";
   methods.loadInfo();
+
+  methods.openWebsocket();
+  window.setInterval(methods.openWebsocket, data.connectionTimeout);
 });
 
 const papi = axios.create({
   baseURL: data.apiUrl,
-  timeout: 5000
+  timeout: data.connectionTimeout
 });

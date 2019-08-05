@@ -10,36 +10,36 @@
 package server
 
 import (
-	"errors"
-	"net/http"
-	"github.com/sensoroni/sensoroni/model"
-	"github.com/sensoroni/sensoroni/web"
+  "errors"
+  "net/http"
+  "github.com/sensoroni/sensoroni/model"
+  "github.com/sensoroni/sensoroni/web"
 )
 
 type InfoHandler struct {
-	web.BaseHandler
-	server 		*Server
+  web.BaseHandler
+  server 		*Server
 }
 
 func NewInfoHandler(srv *Server) *InfoHandler {
-	handler := &InfoHandler {}
-	handler.Host = srv.Host
-	handler.server = srv
-	handler.Impl = handler
-	return handler
+  handler := &InfoHandler {}
+  handler.Host = srv.Host
+  handler.server = srv
+  handler.Impl = handler
+  return handler
 }
 
 func (infoHandler *InfoHandler) HandleNow(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	switch request.Method {
-		case http.MethodGet: return infoHandler.get(writer, request)
-	}
-	return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
+  switch request.Method {
+    case http.MethodGet: return infoHandler.get(writer, request)
+  }
+  return http.StatusMethodNotAllowed, nil, errors.New("Method not supported")
 }
 
 func (infoHandler *InfoHandler) get(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
-	info := &model.Info{
-		Version: infoHandler.Host.Version,
-		License: "GPL v2",
-	}
-	return http.StatusOK, info, nil
+  info := &model.Info{
+    Version: infoHandler.Host.Version,
+    License: "GPL v2",
+  }
+  return http.StatusOK, info, nil
 }

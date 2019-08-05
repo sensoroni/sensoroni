@@ -37,6 +37,15 @@ routes.push({ path: '/sensors', name: 'sensors', component: {
         methods.showError(error);
       }
       methods.stopLoading();
+      methods.subscribe("sensor", this.updateSensor);
+    },
+    updateSensor(sensor) {
+      for (var i = 0; i < this.sensors.length; i++) {
+        if (this.sensors[i].id == sensor.id) {
+          this.$set(this.sensors, i, sensor);
+          break;
+        }
+      }
     }
   }
 }});  

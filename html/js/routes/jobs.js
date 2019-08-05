@@ -50,6 +50,15 @@ routes.push({ path: '/', name: 'jobs', component: {
         methods.showError(error);
       }
       methods.stopLoading();
+      methods.subscribe("job", this.updateJob);
+    },
+    updateJob(job) {
+      for (var i = 0; i < this.jobs.length; i++) {
+        if (this.jobs[i].id == job.id) {
+          this.$set(this.jobs, i, job);
+          break;
+        }
+      }
     },
     submitAddJob(event) {
       this.addJob(this.form.sensorId, this.form.srcIp, this.form.srcPort, this.form.dstIp, this.form.dstPort, this.form.beginTime, this.form.endTime);

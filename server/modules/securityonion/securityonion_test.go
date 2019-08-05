@@ -10,31 +10,31 @@
 package securityonion
 
 import (
-	"net/http"
-	"testing"
-	"github.com/sensoroni/sensoroni/module"
+  "net/http"
+  "testing"
+  "github.com/sensoroni/sensoroni/module"
 )
 
 func TestSecurityOnionInit(tester *testing.T) {
-	so := NewSecurityOnion(nil)
-	cfg := make(module.ModuleConfig)
-	err := so.Init(cfg)
-	if err != nil {
-		tester.Errorf("unexpected Init error: %s", err)
-	}
-	if len(so.elastic.esConfig.Addresses) != 1 || so.elastic.esConfig.Addresses[0] != "elasticsearch" {
-		tester.Errorf("expected host %s but got %s", "elasticsearch", so.elastic.esConfig.Addresses)
-	}
-	if so.elastic.esConfig.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify != false {
-		tester.Errorf("expected verifyCert %t but got %t", false, so.elastic.esConfig.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
-	}
-	if so.elastic.esConfig.Username != "" {
-		tester.Errorf("expected username %s but got %s", "", so.elastic.esConfig.Username)
-	}
-	if so.elastic.esConfig.Password != "" {
-		tester.Errorf("expected password %s but got %s", "", so.elastic.esConfig.Password)
-	}
-	if so.elastic.timeShiftMs != DEFAULT_TIME_SHIFT_MS {
-		tester.Errorf("expected timeShiftMs %d but got %d", DEFAULT_TIME_SHIFT_MS, so.elastic.timeShiftMs)
-	}
+  so := NewSecurityOnion(nil)
+  cfg := make(module.ModuleConfig)
+  err := so.Init(cfg)
+  if err != nil {
+    tester.Errorf("unexpected Init error: %s", err)
+  }
+  if len(so.elastic.esConfig.Addresses) != 1 || so.elastic.esConfig.Addresses[0] != "elasticsearch" {
+    tester.Errorf("expected host %s but got %s", "elasticsearch", so.elastic.esConfig.Addresses)
+  }
+  if so.elastic.esConfig.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify != false {
+    tester.Errorf("expected verifyCert %t but got %t", false, so.elastic.esConfig.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify)
+  }
+  if so.elastic.esConfig.Username != "" {
+    tester.Errorf("expected username %s but got %s", "", so.elastic.esConfig.Username)
+  }
+  if so.elastic.esConfig.Password != "" {
+    tester.Errorf("expected password %s but got %s", "", so.elastic.esConfig.Password)
+  }
+  if so.elastic.timeShiftMs != DEFAULT_TIME_SHIFT_MS {
+    tester.Errorf("expected timeShiftMs %d but got %d", DEFAULT_TIME_SHIFT_MS, so.elastic.timeShiftMs)
+  }
 }

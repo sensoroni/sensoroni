@@ -10,23 +10,23 @@
 package model
 
 import (
-	"time"
+  "time"
 )
 
 type Sensor struct {
-	Id											string		`json:"id"`
-	OnlineTime              time.Time `json:"onlineTime"`
-	UpdateTime            	time.Time `json:"updateTime"`
-	EpochTime								time.Time	`json:"epochTime"`
-	UptimeSeconds						int				`json:"uptimeSeconds"`
-	Description             string    `json:"description"`
-	Version									string		`json:"version"`
+  Id											string		`json:"id"`
+  OnlineTime              time.Time `json:"onlineTime"`
+  UpdateTime            	time.Time `json:"updateTime"`
+  EpochTime								time.Time	`json:"epochTime"`
+  UptimeSeconds						int				`json:"uptimeSeconds"`
+  Description             string    `json:"description"`
+  Version									string		`json:"version"`
 }
 
 func NewSensor(id string) *Sensor {
-	return &Sensor{
-		Id: id,
-		OnlineTime: time.Now(),
-		UpdateTime: time.Now(),
-	}
+  return &Sensor{
+    Id: id,
+    OnlineTime: time.Now(),
+    UpdateTime: time.Now(),
+  }
 }

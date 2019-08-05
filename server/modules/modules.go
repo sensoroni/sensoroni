@@ -10,17 +10,17 @@
 package modules
 
 import (
-	"github.com/sensoroni/sensoroni/module"
-	"github.com/sensoroni/sensoroni/server"
-	"github.com/sensoroni/sensoroni/server/modules/filedatastore"
-	"github.com/sensoroni/sensoroni/server/modules/securityonion"
-	"github.com/sensoroni/sensoroni/server/modules/statickeyauth"
+  "github.com/sensoroni/sensoroni/module"
+  "github.com/sensoroni/sensoroni/server"
+  "github.com/sensoroni/sensoroni/server/modules/filedatastore"
+  "github.com/sensoroni/sensoroni/server/modules/securityonion"
+  "github.com/sensoroni/sensoroni/server/modules/statickeyauth"
 )
 
 func BuildModuleMap(srv *server.Server) map[string]module.Module {
-	moduleMap := make(map[string]module.Module)
-	moduleMap["filedatastore"] = filedatastore.NewFileDatastore(srv)
-	moduleMap["securityonion"] = securityonion.NewSecurityOnion(srv)
-	moduleMap["statickeyauth"] = statickeyauth.NewStaticKeyAuth(srv)
-	return moduleMap
+  moduleMap := make(map[string]module.Module)
+  moduleMap["filedatastore"] = filedatastore.NewFileDatastore(srv)
+  moduleMap["securityonion"] = securityonion.NewSecurityOnion(srv)
+  moduleMap["statickeyauth"] = statickeyauth.NewStaticKeyAuth(srv)
+  return moduleMap
 }

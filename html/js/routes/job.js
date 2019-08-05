@@ -109,6 +109,10 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
         }
       }
       methods.stopLoading();
+      methods.subscribe("job", this.updateJob);
+    },
+    updateJob(job) {
+      this.job = job;
     },
     formatPacketView(packet) {
       var view = "";

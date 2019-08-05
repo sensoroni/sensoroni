@@ -7,20 +7,9 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-package server
+package web
 
-import (
-  "testing"
-  "github.com/sensoroni/sensoroni/config"
-)
-
-func TestNewServer(tester *testing.T) {
-  cfg := &config.ServerConfig{}
-  srv := NewServer(cfg, "")
-  if srv.Host == nil {
-    tester.Errorf("expected non-nil Host")
-  }
-  if srv.stoppedChan == nil {
-    tester.Errorf("expected non-nil stoppedChan")
-  }
+type WebSocketMessage struct {
+  Kind		string
+  Object	interface{}
 }

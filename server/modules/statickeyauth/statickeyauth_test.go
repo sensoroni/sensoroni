@@ -10,31 +10,31 @@
 package statickeyauth
 
 import (
-	"testing"
-	"github.com/sensoroni/sensoroni/config"
-	"github.com/sensoroni/sensoroni/module"
-	"github.com/sensoroni/sensoroni/server"
+  "testing"
+  "github.com/sensoroni/sensoroni/config"
+  "github.com/sensoroni/sensoroni/module"
+  "github.com/sensoroni/sensoroni/server"
 )
 
 func TestAuthInit(tester *testing.T) {
-	scfg := &config.ServerConfig{}
-	srv := server.NewServer(scfg, "")
-	auth := NewStaticKeyAuth(srv)
-	cfg := make(module.ModuleConfig)
-	err := auth.Init(cfg)
-	if err == nil {
-		tester.Errorf("expected Init error")
-	}
+  scfg := &config.ServerConfig{}
+  srv := server.NewServer(scfg, "")
+  auth := NewStaticKeyAuth(srv)
+  cfg := make(module.ModuleConfig)
+  err := auth.Init(cfg)
+  if err == nil {
+    tester.Errorf("expected Init error")
+  }
 
-	cfg["apiKey"] = "abc"
-	err = auth.Init(cfg)
-	if err != nil {
-		tester.Errorf("unexpected Init error")
-	}
-	if auth.impl.anonymousNetwork.String() != "0.0.0.0/0" {
-		tester.Errorf("expected anonymousNetwork %s but got %s", "0.0.0.0/0", auth.impl.anonymousNetwork.String())
-	}
-	if auth.server.Host.Auth == nil {
-		tester.Errorf("expected non-nil Hot.Auth")
-	}
+  cfg["apiKey"] = "abc"
+  err = auth.Init(cfg)
+  if err != nil {
+    tester.Errorf("unexpected Init error")
+  }
+  if auth.impl.anonymousNetwork.String() != "0.0.0.0/0" {
+    tester.Errorf("expected anonymousNetwork %s but got %s", "0.0.0.0/0", auth.impl.anonymousNetwork.String())
+  }
+  if auth.server.Host.Auth == nil {
+    tester.Errorf("expected non-nil Hot.Auth")
+  }
 }

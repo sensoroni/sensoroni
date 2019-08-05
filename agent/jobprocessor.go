@@ -10,12 +10,12 @@
 package agent
 
 import (
-	"io"
-	"time"
-	"github.com/sensoroni/sensoroni/model"
+  "io"
+  "time"
+  "github.com/sensoroni/sensoroni/model"
 )
 
 type JobProcessor interface {
-	ProcessJob(*model.Job, io.ReadCloser) (io.ReadCloser, error)
-	GetDataEpoch() time.Time
+  ProcessJob(*model.Job, io.ReadCloser) (io.ReadCloser, error)
+  GetDataEpoch() time.Time
 }

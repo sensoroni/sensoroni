@@ -10,46 +10,46 @@
 package json
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"github.com/apex/log"
+  "encoding/json"
+  "io/ioutil"
+  "github.com/apex/log"
 )
 
 func WriteJsonFile(filename string, obj interface{}) error {
-	bytes, err := json.Marshal(obj)
-	if err == nil {
-		err = ioutil.WriteFile(filename, bytes, 0644)
-	}
-	if err != nil {
-		log.WithError(err).WithFields(log.Fields{ 
-			"filename": filename,
-		}).Errorf("Error writing json object: %T", err)
-	}
-	return err
+  bytes, err := json.Marshal(obj)
+  if err == nil {
+    err = ioutil.WriteFile(filename, bytes, 0644)
+  }
+  if err != nil {
+    log.WithError(err).WithFields(log.Fields{ 
+      "filename": filename,
+    }).Errorf("Error writing json object: %T", err)
+  }
+  return err
 }
 
 func LoadJsonFile(filename string, obj interface{}) error {
-	log.WithField("filename", filename).Debug("Loading JSON object")
-	content, err := ioutil.ReadFile(filename)
-	if err == nil {
-		err = json.Unmarshal(content, &obj)
-		if err != nil {
-			if jsonErr, ok := err.(*json.SyntaxError); ok {
-				log.WithError(err).WithFields(log.Fields{ 
-					"offset": jsonErr.Offset,
-					"filename": filename,
-				}).Error("Syntax error reading json object")
-			} else if jsonErr, ok := err.(*json.UnmarshalTypeError); ok {
-				log.WithError(err).WithFields(log.Fields{ 
-					"offset": jsonErr.Offset,
-					"filename": filename,
-				}).Error("Unmarshal error reading json object")
-			} else {
-				log.WithError(err).WithFields(log.Fields{ 
-					"filename": filename,
-				}).Errorf("Unknown error reading json object: %T", err)
-			}
-		}
-	}
-	return err
+  log.WithField("filename", filename).Debug("Loading JSON object")
+  content, err := ioutil.ReadFile(filename)
+  if err == nil {
+    err = json.Unmarshal(content, &obj)
+    if err != nil {
+      if jsonErr, ok := err.(*json.SyntaxError); ok {
+        log.WithError(err).WithFields(log.Fields{ 
+          "offset": jsonErr.Offset,
+          "filename": filename,
+        }).Error("Syntax error reading json object")
+      } else if jsonErr, ok := err.(*json.UnmarshalTypeError); ok {
+        log.WithError(err).WithFields(log.Fields{ 
+          "offset": jsonErr.Offset,
+          "filename": filename,
+        }).Error("Unmarshal error reading json object")
+      } else {
+        log.WithError(err).WithFields(log.Fields{ 
+          "filename": filename,
+        }).Errorf("Unknown error reading json object: %T", err)
+      }
+    }
+  }
+  return err
 }
