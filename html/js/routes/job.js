@@ -112,6 +112,9 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
       methods.subscribe("job", this.updateJob);
     },
     updateJob(job) {
+      if (this.job.status != job.status) {
+        this.loadPackets();
+      }
       this.job = job;
     },
     formatPacketView(packet) {
