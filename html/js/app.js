@@ -17,7 +17,7 @@ const data = {
   dark: true,
   toolbar: null,
   apiUrl: location.origin + location.pathname + 'api/',
-  wsUrl: (location.protocol == 'https' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
+  wsUrl: (location.protocol == 'https:' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
   version: '0.0',
   versionLink: 'https://github.com/sensoroni/sensoroni/releases/',
   license: '',
