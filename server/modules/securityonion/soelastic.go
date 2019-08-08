@@ -67,7 +67,7 @@ func (elastic *SoElastic) Init(host string, user string, pass string, verifyCert
     "Password": maskedPassword,
   }
   if err == nil {
-    elastic.esClient = esClient	
+    elastic.esClient = esClient
     log.WithFields(fields).Info("Initialized Elasticsearch Client")
   } else {
     log.WithFields(fields).Error("Failed to initialize Elasticsearch Client")
@@ -86,7 +86,7 @@ func (elastic *SoElastic) Search(index string, query string) (string, error) {
   )
   if err == nil {
     defer res.Body.Close()
-    
+
     var b bytes.Buffer
     b.ReadFrom(res.Body)
     json = b.String()
@@ -109,7 +109,7 @@ func (elastic *SoElastic) LookupEsId(esId string) (string, *model.Filter, error)
   if err == nil {
     hits := gjson.Get(json, "hits.total").Int()
     if hits > 0 {
-      timestampStr := gjson.Get(json, "hits.hits.0._source.@timestamp").String()
+      timestampStr := gjson.Get(json, "hits.hits.0._source.\\@timestamp").String()
       var timestamp time.Time
       timestamp, err = time.Parse(time.RFC3339, timestampStr)
       if err == nil {
@@ -143,13 +143,13 @@ func (elastic *SoElastic) LookupEsId(esId string) (string, *model.Filter, error)
 
         startTime := timestamp.Add(time.Duration(-30) * time.Minute).Unix() * 1000
         endTime := timestamp.Add(time.Duration(30) * time.Minute).Unix() * 1000
-        query = fmt.Sprintf(`{"query":{"bool":{"must":[{"query_string":{"query":"event_type:%s AND %s","analyze_wildcard":true}},{"range":{"@timestamp":{"gte":"%d","lte":"%d","format":"epoch_millis"}}}]}}}`, 
+        query = fmt.Sprintf(`{"query":{"bool":{"must":[{"query_string":{"query":"event_type:%s AND %s","analyze_wildcard":true}},{"range":{"@timestamp":{"gte":"%d","lte":"%d","format":"epoch_millis"}}}]}}}`,
           esType, broQuery, startTime, endTime)
         json, err = elastic.Search(index, query)
         if err == nil {
           hits = gjson.Get(json, "hits.total").Int()
           if hits > 0 {
-            results := gjson.Get(json, "hits.hits.#._source.@timestamp").Array()
+            results := gjson.Get(json, "hits.hits.#._source.\\@timestamp").Array()
             closestIdx := 0
             var closestDeltaNs int64
             var closestTimestamp time.Time
@@ -181,7 +181,7 @@ func (elastic *SoElastic) LookupEsId(esId string) (string, *model.Filter, error)
             filter.EndTime = closestTimestamp.Add(time.Duration(duration + int64(elastic.timeShiftMs)) * time.Millisecond)
             outputSensorId = gjson.Get(json, "hits.hits." + idxStr + "._source.sensor_name").String()
             log.WithFields(log.Fields{
-              "sensorId": outputSensorId, 
+              "sensorId": outputSensorId,
               }).Info("Obtained output parameters")
           }
         }
