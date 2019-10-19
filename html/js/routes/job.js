@@ -7,15 +7,16 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-routes.push({ path: '/job/:jobId', name: 'job', component: { 
-  template: '#page-job', 
-  data() { return { 
+routes.push({ path: '/job/:jobId', name: 'job', component: {
+  template: '#page-job',
+  data() { return {
     i18n: i18n,
     job: {},
     packetView: 'hex',
     packetsLoading: false,
     search: '',
     expandAll: false,
+    expanded: [],
     captureLayout: 'packets',
     packets: [],
     headers: [
@@ -27,19 +28,26 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
       { text: i18n.flags, value: 'flags' },
       { text: i18n.length, value: 'length' },
     ],
-    pagination: {'sortBy': 'number', 'descending': false},
-    rowsPerPageOptions: [10,50,250,1000],
+    sortBy: 'number',
+    sortDesc: false,
+    itemsPerPage: 10,
+    footerProps: { 'items-per-page-options': [10,50,250,1000] },
     count: 500,
   }},
-  created() { 
+  created() {
     Vue.filter('formatPacketView', this.formatPacketView);
-    this.loadData() 
+    Vue.filter('colorType', this.colorType);
+    Vue.filter('colorFlag', this.colorFlag);
+    this.loadData()
   },
-  watch: { 
+  watch: {
     '$route': 'loadData',
     'packets': 'packetsUpdated'
   },
   methods: {
+    getPacketColumnSpan() {
+        return this.captureLayout == 'packets' ? this.headers.length : 1;
+    },
     getPacketClass(packet) {
       var cls = "default";
       if (packet.srcIp == this.job.filter.srcIp && packet.srcPort == this.job.filter.srcPort) {
@@ -47,21 +55,32 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
       } else if (packet.srcIp == this.job.filter.dstIp && packet.srcPort == this.job.filter.dstPort) {
         cls = "dst";
       }
-      return cls
+      return "packet " + cls;
+    },
+    expandRow(row) {
+      for (var i = 0; i < this.expanded.length; i++) {
+        if (this.expanded[i] == row) {
+          this.expanded.splice(i, 1);
+          return;
+        }
+      }
+      this.expanded.push(row);
     },
     expandPackets(enabled) {
       this.expandAll = enabled;
-      for (var i = 0; i < this.packets.length; i++) {
-        this.$set(this.$refs.packetTable.expanded, this.packets[i].number, enabled)
-      }
-      if (!enabled) {
+      this.expanded = [];
+      if (enabled) {
+        for (var i = 0; i < this.packets.length; i++) {
+          this.expandRow(this.packets[i]);
+        }
+      } else {
         this.captureLayout = 'packets';
       }
     },
     captureLayoutAsStream() {
       this.expandPackets(true);
-      this.pagination['sortBy'] = 'number';
-      this.pagination['descending'] = false;
+      this.sortBy = 'number';
+      this.sortDesc = false;
     },
     packetsUpdated() {
       if (this.expandAll) {
@@ -72,7 +91,7 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
       return data.apiUrl + "stream?jobId=" + this.job.id;
     },
     showAll() {
-      
+
     },
     async loadPackets() {
       this.packetsLoading = true;
@@ -116,6 +135,22 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
         this.loadPackets();
       }
       this.job = job;
+    },
+    colorType(type) {
+      if (type.startsWith("ICMP")) return "error";
+      if (type.startsWith("DHCP")) return "warning";
+      if (type.startsWith("ARP")) return "secondary";
+      if (type.startsWith("DNS")) return "accent";
+      if (type.startsWith("TCP")) return "primary";
+      if (type.startsWith("UDP")) return "success";
+      return "";
+    },
+    colorFlag(flag) {
+      if (flag == "SYN") return "success";
+      if (flag == "PSH") return "primary";
+      if (flag == "RST") return "error";
+      if (flag == "FIN") return "warning";
+      return "";
     },
     formatPacketView(packet) {
       var view = "";

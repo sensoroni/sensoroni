@@ -7,9 +7,9 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-routes.push({ path: '/', name: 'jobs', component: { 
-  template: '#page-jobs', 
-  data() { return { 
+routes.push({ path: '/', name: 'jobs', component: {
+  template: '#page-jobs',
+  data() { return {
     i18n: i18n,
     jobs: [],
     headers: [
@@ -19,7 +19,9 @@ routes.push({ path: '/', name: 'jobs', component: {
       { text: i18n.sensorId, value: 'sensorId' },
       { text: i18n.status, value: 'status' },
     ],
-    pagination: {'sortBy': 'id', 'descending': true, 'rowsPerPage': 10},
+    sortBy: 'id',
+    sortDesc: false,
+    itemsPerPage: 10,
     dialog: false,
     form: {
       valid: false,
@@ -32,12 +34,13 @@ routes.push({ path: '/', name: 'jobs', component: {
       endTime: null,
     },
   }},
-  created() { 
+  created() {
     Vue.filter('formatJobStatus', this.formatJobStatus);
     Vue.filter('formatJobUpdateTime', this.formatJobUpdateTime);
+    Vue.filter('colorJobStatus', this.colorJobStatus);
     this.loadData()
   },
-  watch: { 
+  watch: {
     '$route': 'loadData'
   },
   methods: {
@@ -76,7 +79,7 @@ routes.push({ path: '/', name: 'jobs', component: {
         if (!sensorId) {
           methods.showError(this.i18n.sensorIdRequired);
         } else {
-          const response = await papi.post('job', {  
+          const response = await papi.post('job', {
             sensorId: sensorId,
             filter: {
               srcIp: srcIp,
@@ -110,6 +113,15 @@ routes.push({ path: '/', name: 'jobs', component: {
         status = i18n.incomplete;
       }
       return status;
+    },
+    colorJobStatus(job) {
+      var color = "gray";
+      if (job.status == 1) {
+        color = "success";
+      } else if (job.status == 2) {
+        color = "info";
+      }
+      return color;
     }
   }
-}});  
+}});

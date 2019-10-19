@@ -1,10 +1,10 @@
 <!doctype html>
 <!--
   Copyright 2019 Jason Ertel (jertel). All rights reserved.
- 
+
   This program is distributed under the terms of version 2 of the
   GNU General Public License.  See LICENSE for further details.
- 
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -16,83 +16,88 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="icon" sizes="24x24" href="images/favicon.png">
-    <link rel="stylesheet" href="css/external/font.css">
+    <link rel="stylesheet" href="css/external/materialdesignicons.min.css">
+    <link rel="stylesheet" href="css/external/materialicons.css">
     <link rel="stylesheet" href="css/external/vuetify.min.css">
     <link rel="stylesheet" href="css/app.css">
     <title>{{ i18n.brand }} - {{ i18n.product }}</title>
   </head>
   <body style="background-color: #303030;">
-    <v-app id="app" :dark="dark" style="display:none">
-      <v-navigation-drawer v-model="toolbar" width="200" clipped absolute overflow app>
+    <v-app id="app" style="display:none">
+      <v-navigation-drawer v-model="toolbar" width="200" clipped overflow app>
         <v-list dense>
-          <v-list-tile @click="" to="/">
-            <v-list-tile-action>
+          <v-list-item @click="" to="/">
+            <v-list-item-action>
               <v-icon>list_alt</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title v-text="i18n.jobs"></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-          <v-list-tile @click="" to="/sensors">
-            <v-list-tile-action>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title v-text="i18n.jobs"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item @click="" to="/sensors">
+            <v-list-item-action>
               <v-icon>settings_input_hdmi</v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title v-text="i18n.sensors"></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title v-text="i18n.sensors"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-toolbar clipped-left app absolute>
-        <v-toolbar-side-icon @click.stop="toolbar = !toolbar"></v-toolbar-side-icon>
+      <v-app-bar clipped-left app >
+        <v-app-bar-nav-icon @click.stop="toolbar = !toolbar"></v-app-bar-nav-icon>
         <v-toolbar-title>{{ i18n.brand }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon flat top right fixed app @click.stop="dark = !dark">
+        <v-btn icon text right fixed app @click.stop="$vuetify.theme.dark = !$vuetify.theme.dark">
           <v-icon>chrome_reader_mode</v-icon>
         </v-btn>
-      </v-toolbar>
+      </v-app-bar>
       <v-content>
         <v-progress-linear v-if="loading" :active="loading" indeterminate></v-progress-linear>
         <v-alert dismissible type="warning" v-model="error" transition="scale-transition">{{ i18n.error }} ({{ message }})</v-alert>
         <router-view></router-view>
       </v-content>
-      <v-footer app>
-        <span class="px-3">&copy; {{ new Date().getFullYear() }} <a class="footer" href="https://github.com/sensoroni/sensoroni">{{ i18n.brand }}</a></span>
-        <span class="px-3">{{ i18n.version }}: <a class="footer" :href="versionLink">{{ version }}</a></span>
-        <span class="px-3">{{ i18n.license }}: <a class="footer" :href="licenseLink">{{ license }}</a></span>
+      <v-footer app inset>
+        <span class="overline text-no-wrap">
+          &nbsp;&nbsp;&copy; {{ new Date().getFullYear() }} <a class="footer" href="https://github.com/sensoroni/sensoroni">{{ i18n.brand }}</a>
+          &nbsp;&nbsp;{{ i18n.version }}: <a class="footer" :href="versionLink">{{ version }}</a>
+          &nbsp;&nbsp;{{ i18n.license }}: <a class="footer" :href="licenseLink">{{ license }}</a>
+        </span>
       </v-footer>
     </v-app>
 
     <script type="text/x-template" id="page-jobs">
       <v-container fluid>
-        <v-layout row>
-          <v-flex>
+        <v-row>
+          <v-col>
             <h2 v-text="i18n.jobs"></h2>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex>
-            <v-data-table :pagination.sync="pagination" must-sort :headers="headers" :items="jobs">
-              <template v-slot:items="props">
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-toolbar fixed app>
+              <v-btn class="action" color="green" @click.stop="dialog = !dialog">
+                <v-icon>add</v-icon>
+              </v-btn>
+            </v-toolbar>
+            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="jobs">
+              <template v-slot:item="props">
                 <router-link :to="{ name: 'job', params: {jobId: props.item.id}}" tag="tr">
                   <td v-text="props.item.id"></td>
                   <td>{{ props.item.createTime | formatDateTime }}</td>
                   <td>{{ props.item | formatJobUpdateTime | formatDateTime }}</td>
                   <td v-text="props.item.sensorId"></td>
-                  <td><v-chip dark :class="props.item | formatJobStatus">{{ props.item | formatJobStatus }}</v-chip></td>
+                  <td><v-chip :color="props.item | colorJobStatus">{{ props.item | formatJobStatus }}</v-chip></td>
                 </router-link>
               </template>
             </v-data-table>
-            <v-btn fab bottom right color="green" fixed @click.stop="dialog = !dialog">
-              <v-icon>add</v-icon>
-            </v-btn>
             <v-dialog v-model="dialog" width="800px">
               <v-card>
                 <v-card-title class="lighten-4 py-4 title" v-text="i18n.addJob"></v-card-title>
                 <v-form v-model="form.valid">
                   <v-container grid-list-sm class="pa-4">
-                    <v-layout row>
-                      <v-flex xs12>
+                    <v-row>
+                      <v-col xs12>
                         <v-text-field v-model="form.sensorId" :placeholder="i18n.sensorId" :hint="i18n.sensorIdHelp"></v-text-field>
                         <v-text-field v-model="form.srcIp" :placeholder="i18n.srcIp" :hint="i18n.srcIpHelp"></v-text-field>
                         <v-text-field v-model="form.srcPort" :placeholder="i18n.srcPort" :hint="i18n.srcPortHelp"></v-text-field>
@@ -100,19 +105,19 @@
                         <v-text-field v-model="form.dstPort" :placeholder="i18n.dstPort" :hint="i18n.dstPortHelp"></v-text-field>
                         <v-text-field v-model="form.beginTime" :placeholder="i18n.beginTime" :hint="i18n.beginTimeHelp"></v-text-field>
                         <v-text-field v-model="form.endTime" :placeholder="i18n.endTime" :hint="i18n.endTimeHelp"></v-text-field>
-                      </v-flex>
-                    </v-layout>
+                      </v-col>
+                    </v-row>
                   </v-container>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn flat @click="dialog = false">Cancel</v-btn>
-                    <v-btn :disabled="!form.valid" flat color="primary" @click="submitAddJob" v-text="i18n.addJob"></v-btn>
+                    <v-btn text @click="dialog = false">Cancel</v-btn>
+                    <v-btn :disabled="!form.valid" text color="primary" @click="submitAddJob" v-text="i18n.addJob"></v-btn>
                   </v-card-actions>
                 </v-form>
               </v-card>
             </v-dialog>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </script>
 
@@ -123,111 +128,105 @@
 
     <script type="text/x-template" id="page-job">
       <v-container fluid>
-        <v-layout row>
-          <v-flex>
+        <v-row>
+          <v-col>
             <h2>{{ i18n.viewJob }}</h2>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex>
-            <v-expansion-panel>
-              <v-expansion-panel-content>
-                <template v-slot:header>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-expansion-panels>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
                   <v-chip disabled>
-                    {{ i18n.id }}: {{ job.id }}
+                      {{ i18n.id }}: {{ job.id }}
                   </v-chip>
                   <v-chip disabled>
-                    <v-avatar>
+                      <v-avatar>
                       <v-icon>settings_input_hdmi</v-icon>
-                    </v-avatar>
-                    {{ job.sensorId }}
+                      </v-avatar>
+                      {{ job.sensorId }}
                   </v-chip>
-                  <v-chip disabled>
-                    <v-avatar>
-                      <v-icon>alarm_add</v-icon>
-                    </v-avatar>
-                    {{ job.createTime | formatDateTime }}
-                  </v-chip>
-                  <v-chip disabled>
-                    <v-avatar>
-                      <v-icon>alarm_on</v-icon>
-                    </v-avatar>
-                    {{ job.completeTime | formatDateTime }}
-                  </v-chip>
-                </template>
-                <v-container fluid grid-list-sm class="pa-4">
-                  <v-layout row>
-                    <v-flex xs12>
-                      <div><span class="filter label">{{ i18n.srcIp }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.srcIp }}</span></div>
-                      <div><span class="filter label">{{ i18n.srcPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.srcPort }}</span></div>
-                      <div><span class="filter label">{{ i18n.dstIp }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstIp }}</span></div>
-                      <div><span class="filter label">{{ i18n.dstPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstPort }}</span></div>
-                      <div><span class="filter label">{{ i18n.beginTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.beginTime | formatTimestamp }}</span></div>
-                      <div><span class="filter label">{{ i18n.endTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.endTime | formatTimestamp }}</span></div>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-flex>
-        </v-layout>
-        <v-layout v-if="job.status == 0" row>
-          <v-flex>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-container fluid grid-list-sm class="pa-4">
+                    <v-row>
+                      <v-col>
+                        <div class="details"><span class="filter label">{{ i18n.dateQueued }}:</span> <span v-if="job.filter" class="filter value">{{ job.createTime | formatDateTime}}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.dateCompleted }}:</span> <span v-if="job.filter" class="filter value">{{ job.completeTime | formatDateTime}}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.srcIp }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.srcIp }}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.srcPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.srcPort }}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.dstIp }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstIp }}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.dstPort }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.dstPort }}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.beginTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.beginTime | formatTimestamp }}</span></div>
+                        <div class="details"><span class="filter label">{{ i18n.endTime }}:</span> <span v-if="job.filter" class="filter value">{{ job.filter.endTime | formatTimestamp }}</span></div>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
+        <v-row v-if="job.status == 0" row>
+          <v-col>
             <v-alert :value="true" color="info" icon="info">
               {{ i18n.jobInProgress }}
             </v-alert>
-          </v-flex>
-        </v-layout>
-        <v-layout v-if="job.status == 1">
-          <v-flex>
-            <v-toolbar>
+          </v-col>
+        </v-row>
+        <v-row v-if="job.status == 1">
+          <v-col>
+            <v-toolbar fixed app>
               <v-text-field v-model="search" append-icon="search" :label="i18n.filterPackets" single-line hide-details></v-text-field>
               <v-spacer></v-spacer>
               <v-btn-toggle v-model="captureLayout" class="transparent" mandatory>
-                <v-btn value="packets" icon :title="i18n.showPacketsHelp" flat>
+                <v-btn value="packets" icon :title="i18n.showPacketsHelp" text>
                   <v-icon>view_list</v-icon>
                 </v-btn>
-                <v-btn value="stream" icon :title="i18n.showStreamHelp" flat @click="captureLayoutAsStream()">
+                <v-btn value="stream" icon :title="i18n.showStreamHelp" text @click="captureLayoutAsStream()">
                   <v-icon>subject</v-icon>
                 </v-btn>
               </v-btn-toggle>
               <v-spacer></v-spacer>
               <v-btn-toggle v-model="packetView" class="transparent" mandatory>
-                <v-btn value="hex" :title="i18n.hexHelp" flat>
+                <v-btn value="hex" :title="i18n.hexHelp" text>
                   {{ i18n.hex }}
                 </v-btn>
-                <v-btn value="ascii" :title="i18n.asciiHelp" flat>
+                <v-btn value="ascii" :title="i18n.asciiHelp" text>
                   {{ i18n.ascii }}
                 </v-btn>
               </v-btn-toggle>
               <v-spacer></v-spacer>
-              <v-btn icon @click="expandPackets(false)" :title="i18n.collapseHelp" flat>
+              <v-btn icon @click="expandPackets(false)" :title="i18n.collapseHelp" text>
                 <v-icon>unfold_less</v-icon>
               </v-btn>
-              <v-btn icon @click="expandPackets(true)" :title="i18n.expandHelp" flat>
+              <v-btn icon @click="expandPackets(true)" :title="i18n.expandHelp" text>
                 <v-icon>unfold_more</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn flat icon :href="downloadUrl()" download :title="i18n.download">
+              <v-btn text icon :href="downloadUrl()" download :title="i18n.download">
                 <v-icon>cloud_download</v-icon>
               </v-btn>
             </v-toolbar>
-            <v-data-table ref="packetTable" :pagination.sync="pagination" :search="search" :rows-per-page-items="rowsPerPageOptions" must-sort :headers="headers" :hide-headers="captureLayout != 'packets'" :items="packets" item-key="number" :loading="packetsLoading" expand>
-              <template v-slot:items="props">
-                <tr @click="props.expanded = !props.expanded" v-if="captureLayout == 'packets'">
+            <v-data-table ref="packetTable" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :items-per-page.sync="itemsPerPage" :search="search" :footer-props="footerProps" must-sort :headers="headers" :hide-default-header="captureLayout != 'packets'" :items="packets" item-key="number" :loading="packetsLoading" :expanded="expanded">
+              <template v-slot:item="props">
+                <tr @click="expandRow(props.item)" v-if="captureLayout == 'packets'">
                   <td v-text="props.item.number"></td>
                   <td>{{ props.item.timestamp | formatTimestamp }}</td>
-                  <td><v-chip dark :class="props.item.type">{{ props.item.type }}</v-chip></td>
+                  <td><v-chip :color="props.item.type | colorType">{{ props.item.type }}</v-chip></td>
                   <td>{{ props.item.srcIp }}:{{ props.item.srcPort }}</td>
                   <td>{{ props.item.dstIp }}:{{ props.item.dstPort }}</td>
-                  <td><v-chip v-for="flag in props.item.flags" dark :class="flag" :key="flag">{{ flag }}</v-chip></td>
+                  <td><v-chip v-for="flag in props.item.flags" :color="flag | colorFlag" :key="flag">{{ flag }}</v-chip></td>
                   <td>{{ props.item.length }}</td>
                 </tr>
               </template>
-              <template v-slot:expand="props">
-                <v-card v-if="captureLayout == 'packets' || props.item.payloadOffset > 0">
-                  <v-card-text><pre :class="getPacketClass(props.item)">{{ props.item | formatPacketView }}</pre></v-card-text>
-                </v-card>
+              <template v-slot:expanded-item="props">
+                <tr v-if="captureLayout == 'packets' || props.item.payloadOffset > 0">
+                  <td :colspan="getPacketColumnSpan()">
+                    <pre :class="getPacketClass(props.item)">{{ props.item | formatPacketView }}</pre>
+                  </td>
+                </tr>
               </template>
               <template v-slot:no-results>
                 <v-alert :value="true" color="info" icon="info">
@@ -238,10 +237,10 @@
             <div class="text-xs-center pt-2">
                 <v-btn v-text="i18n.loadMore" @click="loadPackets()"></v-btn>
             </div>
-          </v-flex>    
-        </v-layout>
-        <v-layout v-if="job.status == 2">
-          <v-flex>
+          </v-col>
+        </v-row>
+        <v-row v-if="job.status == 2">
+          <v-col>
             <v-alert :value="true" color="info" icon="warning">
               {{ i18n.jobIncomplete }}
               <hr>
@@ -249,22 +248,22 @@
               <br>
               {{ i18n.attempt }} {{ job.failCount }}: {{ job.failure }}
             </v-alert>
-          </v-flex>
-        </v-layout>  
+          </v-col>
+        </v-row>
       </v-container>
     </script>
 
     <script type="text/x-template" id="page-sensors">
       <v-container fluid>
-        <v-layout row>
-          <v-flex>
+        <v-row>
+          <v-col>
             <h2 v-text="i18n.sensors"></h2>
-          </v-flex>
-        </v-layout>
-        <v-layout row>
-          <v-flex>
-            <v-data-table :pagination.sync="pagination" must-sort :headers="headers" :items="sensors">
-              <template v-slot:items="props">
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="sensors">
+              <template v-slot:item="props">
                 <td v-text="props.item.id"></td>
                 <td v-text="props.item.description"></td>
                 <td v-text="props.item.version"></td>
@@ -274,17 +273,18 @@
                 <td>{{ props.item.uptimeSeconds | formatDuration }}</td>
               </template>
             </v-data-table>
-          </v-flex>
-        </v-layout>
+          </v-col>
+        </v-row>
       </v-container>
     </script>
-    
-    <script src="js/external/jquery.min.js"></script>
-    <script src="js/external/vue.min.js"></script>
-    <script src="js/external/vue-router.min.js"></script>
-    <script src="js/external/vuetify.min.js"></script>
-    <script src="js/external/axios.min.js"></script>
-    <script src="js/external/moment.min.js"></script>
+
+    <script src="js/external/jquery-3.4.1.min.js"></script>
+    <script src="js/external/vue-2.6.10.min.js"></script>
+    <script src="js/external/vue-router-3.1.3.min.js"></script>
+    <script src="js/external/vuetify-2.1.3.min.js"></script>
+    <script src="js/external/axios-0.19.0.min.js"></script>
+    <script src="js/external/moment-2.24.0.min.js"></script>
+
     <script src="js/i18n.js"></script>
     <script src="js/app.js"></script>
     <script src="js/routes/jobs.js"></script>

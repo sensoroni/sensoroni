@@ -7,9 +7,9 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-routes.push({ path: '/sensors', name: 'sensors', component: { 
-  template: '#page-sensors', 
-  data() { return { 
+routes.push({ path: '/sensors', name: 'sensors', component: {
+  template: '#page-sensors',
+  data() { return {
     i18n: i18n,
     sensors: [],
     headers: [
@@ -21,10 +21,12 @@ routes.push({ path: '/sensors', name: 'sensors', component: {
       { text: i18n.dateDataEpoch, value: 'epochTime' },
       { text: i18n.uptime, value: 'uptimeSeconds' },
     ],
-    pagination: {'sortBy': 'id', 'descending': true, 'rowsPerPage': 10},
+    sortBy: 'id',
+    sortDesc: false,
+    itemsPerPage: 10,
   }},
   created() { this.loadData() },
-  watch: { 
+  watch: {
     '$route': 'loadData'
   },
   methods: {
@@ -48,4 +50,4 @@ routes.push({ path: '/sensors', name: 'sensors', component: {
       }
     }
   }
-}});  
+}});

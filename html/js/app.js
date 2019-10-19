@@ -14,7 +14,6 @@ const data = {
   loading: false,
   error: false,
   message: "",
-  dark: true,
   toolbar: null,
   apiUrl: location.origin + location.pathname + 'api/',
   wsUrl: (location.protocol == 'https:' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
@@ -135,9 +134,19 @@ $(document).ready(function() {
     data: data
   });
 
+  const vuetifySettings = {
+    theme: {
+      dark: true,
+      options: {
+        customProperties: true,
+      },
+    },
+  };
+
   const router = new VueRouter({ routes });
   const vmMain = new Vue({
     el: '#app',
+    vuetify: new Vuetify(vuetifySettings),
     router,
     data,
     methods

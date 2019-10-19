@@ -1,107 +1,47 @@
 /*
   Copyright 2019 Jason Ertel (jertel). All rights reserved.
- 
+
   This program is distributed under the terms of version 2 of the
   GNU General Public License.  See LICENSE for further details.
- 
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
-.v-navigation-drawer>.v-list .v-list__tile--active .v-list__tile__title {
-  color: rgb(80, 186, 221);
-}
-
-.v-list__tile--active .v-list__tile__action:first-of-type .v-icon {
-  color: rgb(80, 186, 221);
-}
-
-.v-alert.v-alert {
-  border-color: #55788d;
-  background-color: #55788d !important;
-}
-
-.v-chip.ICMP,.v-chip.ICMPv4,.v-chip.ICMPv6,.v-chip.ICMPv6RouterAdvertisement {
-  background-color: #7c7c7c;
-}
-
-.v-chip.DHCP,.DHCPv4,.DHCPv6 {
-  background-color: #8f7575;
-}
-
-.v-chip.ARP {
-  background-color: #8d7c55;
-}
-
-.v-chip.DNS {
-  background-color: #73838f;
-}
-
-.v-chip.TCP {
-  background-color: #7876b1;
-}
-
-.v-chip.UDP {
-  background-color: #7881a0;
-}
-
-.v-chip.SYN {
-  background-color: #7ab487;
-}
-
-.v-chip.PSH {
-  background-color: #6178cc;
-}
-
-.v-chip.RST {
-  background-color: #bd7471;
-}
-
-.v-chip.FIN {
-  background-color: #9c976c;
-}
-
-.v-chip.ACK {
-  background-color: #7b8594;
-}
-
-.v-chip.Failed {
-  background-color: #bd7471;
-}
-
-.v-chip.Completed {
-  background-color: #7ab487;
-}
-
-.v-chip.Incomplete {
-  background-color: #55788d;
-}
-
-.v-chip.Pending {
-  background-color: #8d7c55;
-}
-
 .src {
-  color: #6178cc;
+  color: var(--v-info-base);
+  font-weight: bold;
 }
 
 .dst {
-  color: #bd7471;
+  color: var(--v-error-base);
+  font-weight: bold;
+}
+
+.details {
+  white-space: nowrap;
+  overflow-y: scroll;
 }
 
 .filter.label {
   display: inline-block;
   padding-right: 10px;
-  width: 50%;
+  width: 45%;
   text-align: right;
+  white-space: nowrap;
 }
 
 .filter.value {
   text-align: left;
   font-weight: bold;
+  white-space: nowrap;
 }
 
-pre {
+td {
+  white-space: nowrap;
+}
+
+.packet {
   white-space: pre-wrap;
   word-break: break-word;
 }
