@@ -18,7 +18,7 @@ RUN ./build.sh "$SENSORONI_VERSION"
 
 FROM alpine:latest
 RUN apk update && apk add tzdata ca-certificates && update-ca-certificates
-RUN addgroup --gid "$GID" sensoroni && adduser -D -u "$UID" -G "$GID" -g '' sensoroni
+RUN addgroup --gid "$GID" sensoroni && adduser -D -u "$UID" -G "$GID" sensoroni
 RUN mkdir -p /opt/sensoroni/jobs && chown sensoroni /opt/sensoroni/jobs
 RUN mkdir -p /opt/sensoroni/logs && chown sensoroni /opt/sensoroni/logs
 WORKDIR /opt/sensoroni
