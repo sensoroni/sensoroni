@@ -9,8 +9,6 @@
 
 FROM golang:alpine as builder
 ARG SENSORONI_VERSION
-ARG UID
-ARG GID
 RUN apk update && apk add libpcap-dev bash git musl-dev gcc
 COPY . /go/src/github.com/sensoroni/sensoroni
 WORKDIR /go/src/github.com/sensoroni/sensoroni
