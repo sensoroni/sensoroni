@@ -13,7 +13,7 @@ ARG UID
 ARG GID
 RUN apk update && apk add libpcap-dev bash git musl-dev gcc
 RUN addgroup --gid "$GID" sensoroni
-RUN cat /etc/group && adduser -D -u "$UID" -G "$GID" sensoroni
+RUN cat /etc/group && adduser -D -u "$UID" -G sensoroni sensoroni
 COPY . /go/src/github.com/sensoroni/sensoroni
 WORKDIR /go/src/github.com/sensoroni/sensoroni
 RUN ./build.sh "$SENSORONI_VERSION"
