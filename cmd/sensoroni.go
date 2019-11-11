@@ -27,6 +27,11 @@ import (
   serverModules "github.com/sensoroni/sensoroni/server/modules"
 )
 
+var (
+  BuildVersion = "unknown"
+  BuildTime    = "unknown"
+)
+
 func InitLogging(logFilename string, logLevel string) (*os.File, error) {
   logFile, err := os.OpenFile(logFilename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
   if err == nil {
@@ -43,20 +48,24 @@ func main() {
   configFilename := flag.String("config", "sensoroni.json", "Configuration file, in JSON format")
   flag.Parse()
 
-  cfg, err := config.LoadConfig(*configFilename)
+  buildTime, err := time.Parse("2006-01-02T15:04:05", BuildTime)
+  if err != nil {
+    fmt.Printf("Unable to parse build time; reason=%s\n", err.Error())
+  }
+  cfg, err := config.LoadConfig(*configFilename, BuildVersion, buildTime)
   if err == nil {
     logFile, _ := InitLogging(cfg.LogFilename, cfg.LogLevel)
     defer logFile.Close()
 
     log.WithFields(log.Fields {
-      "version": cfg.Version.Label,
-      "buildTime": cfg.Version.BuildTime,
+      "version": cfg.Version,
+      "buildTime": cfg.BuildTime,
     }).Info("Version Information")	
 
     moduleMgr := module.NewModuleManager()
     var srv *server.Server
     if cfg.Server != nil {
-      srv = server.NewServer(cfg.Server, cfg.Version.Label)
+      srv = server.NewServer(cfg.Server, cfg.Version)
       err = moduleMgr.LaunchModules(serverModules.BuildModuleMap(srv), cfg.Server.Modules, cfg.Server.ModuleFailuresIgnored)
       if err == nil {
         go srv.Start()
@@ -66,7 +75,7 @@ func main() {
     }
     var agt *agent.Agent
     if err == nil && cfg.Agent != nil {
-      agt = agent.NewAgent(cfg.Agent, cfg.Version.Label)
+      agt = agent.NewAgent(cfg.Agent, cfg.Version)
       err = moduleMgr.LaunchModules(agentModules.BuildModuleMap(agt), cfg.Agent.Modules, cfg.Agent.ModuleFailuresIgnored)
       if err == nil {
         go agt.Start()

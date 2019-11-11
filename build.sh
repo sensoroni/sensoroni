@@ -10,8 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 version=${1:-dev}
+now=`date -u +%Y-%m-%dT%H:%M:%S`
 
 go get ./...
-go build -a -ldflags '-extldflags "-static"' -tags netgo -installsuffix netgo cmd/sensoroni.go
-
-echo "{\"label\":\"$version\",\"buildTime\":\"`date -u +%Y-%m-%dT%H:%M:%S`Z\"}" > version.json
+go build -a -ldflags "-X main.BuildVersion=$version -X main.BuildTime=$now -extldflags '-static'" -tags netgo -installsuffix netgo cmd/sensoroni.go

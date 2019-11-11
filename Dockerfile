@@ -29,7 +29,6 @@ COPY --from=builder /go/src/github.com/sensoroni/sensoroni/COPYING .
 COPY --from=builder /go/src/github.com/sensoroni/sensoroni/LICENSE .
 COPY --from=builder /go/src/github.com/sensoroni/sensoroni/README.md .
 COPY --from=builder /go/src/github.com/sensoroni/sensoroni/sensoroni.json .
-COPY --from=builder /go/src/github.com/sensoroni/sensoroni/version.json .
 USER sensoroni
 EXPOSE 9822/tcp
 VOLUME /opt/sensoroni/jobs
