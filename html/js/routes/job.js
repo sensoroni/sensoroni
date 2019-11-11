@@ -10,7 +10,7 @@
 routes.push({ path: '/job/:jobId', name: 'job', component: {
   template: '#page-job',
   data() { return {
-    i18n: i18n,
+    i18n: this.$root.i18n,
     job: {},
     packetView: 'hex',
     packetsLoading: false,
@@ -20,13 +20,13 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
     captureLayout: 'packets',
     packets: [],
     headers: [
-      { text: i18n.number, value: 'number' },
-      { text: i18n.timestamp, value: 'timestamp' },
-      { text: i18n.type, value: 'type' },
-      { text: i18n.srcIp, value: 'srcIp' },
-      { text: i18n.dstIp, value: 'dstIp' },
-      { text: i18n.flags, value: 'flags' },
-      { text: i18n.length, value: 'length' },
+      { text: this.$root.i18n.number, value: 'number' },
+      { text: this.$root.i18n.timestamp, value: 'timestamp' },
+      { text: this.$root.i18n.type, value: 'type' },
+      { text: this.$root.i18n.srcIp, value: 'srcIp' },
+      { text: this.$root.i18n.dstIp, value: 'dstIp' },
+      { text: this.$root.i18n.flags, value: 'flags' },
+      { text: this.$root.i18n.length, value: 'length' },
     ],
     sortBy: 'number',
     sortDesc: false,
@@ -38,11 +38,17 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
     Vue.filter('formatPacketView', this.formatPacketView);
     Vue.filter('colorType', this.colorType);
     Vue.filter('colorFlag', this.colorFlag);
-    this.loadData()
+    this.loadData();
   },
   watch: {
     '$route': 'loadData',
-    'packets': 'packetsUpdated'
+    'packets': 'packetsUpdated',
+    'packetView': 'saveLocalSettings',
+    'expandAll': 'saveLocalSettings',
+    'captureLayout': 'saveLocalSettings',
+    'sortBy': 'saveLocalSettings',
+    'sortDesc': 'saveLocalSettings',
+    'itemsPerPage': 'saveLocalSettings',
   },
   methods: {
     getPacketColumnSpan() {
@@ -88,7 +94,7 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
       }
     },
     downloadUrl() {
-      return data.apiUrl + "stream?jobId=" + this.job.id;
+      return this.$root.apiUrl + "stream?jobId=" + this.job.id;
     },
     showAll() {
 
@@ -96,39 +102,60 @@ routes.push({ path: '/job/:jobId', name: 'job', component: {
     async loadPackets() {
       this.packetsLoading = true;
       try {
-        const response = await papi.get('packets', { params: {
+        const response = await this.$root.papi.get('packets', { params: {
           jobId: this.$route.params.jobId,
           offset: this.packets.length,
           count: this.count
         }});
         if (response.data) {
           this.packets = this.packets.concat(response.data);
+          this.loadLocalSettings();
         }
       } catch (error) {
         if (error.response != undefined && error.response.status == 404) {
         } else {
-          methods.showError(error);
+          this.$root.showError(error);
         }
       }
       this.packetsLoading = false;
     },
     async loadData() {
-      methods.startLoading();
+      this.$root.startLoading();
       try {
-        const response = await papi.get('job', { params: {
+        const response = await this.$root.papi.get('job', { params: {
             jobId: this.$route.params.jobId
         }});
         this.job = response.data;
         this.loadPackets();
       } catch (error) {
         if (error.response != undefined && error.response.status == 404) {
-          methods.showError(i18n.jobNotFound);
+          this.$root.showError(this.i18n.jobNotFound);
         } else {
-          methods.showError(error);
+          this.$root.showError(error);
         }
       }
-      methods.stopLoading();
-      methods.subscribe("job", this.updateJob);
+      this.$root.stopLoading();
+      this.$root.subscribe("job", this.updateJob);
+    },
+    saveLocalSettings() {
+      if (!this.packetsLoading) {
+        localStorage['settings.job.packetView'] = this.packetView;
+        localStorage['settings.job.captureLayout'] = this.captureLayout;
+        localStorage['settings.job.expandAll'] = this.expandAll;
+        localStorage['settings.job.sortBy'] = this.sortBy;
+        localStorage['settings.job.sortDesc'] = this.sortDesc;
+        localStorage['settings.job.itemsPerPage'] = this.itemsPerPage;
+      }
+    },
+    loadLocalSettings() {
+      if (localStorage['settings.job.sortBy']) {
+        this.packetView = localStorage['settings.job.packetView'];
+        this.captureLayout = localStorage['settings.job.captureLayout'];
+        this.expandAll = localStorage['settings.job.expandAll'] == "true";
+        this.sortBy = localStorage['settings.job.sortBy'];
+        this.sortDesc = localStorage['settings.job.sortDesc'] == "true";
+        this.itemsPerPage = parseInt(localStorage['settings.job.itemsPerPage']);
+      }
     },
     updateJob(job) {
       if (this.job.status != job.status) {

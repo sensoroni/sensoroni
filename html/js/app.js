@@ -6,159 +6,161 @@
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-const i18n = getLocalizedTranslations(navigator.language);
-
-const data = {
-  i18n: i18n,
-  loading: false,
-  error: false,
-  message: "",
-  toolbar: null,
-  apiUrl: location.origin + location.pathname + 'api/',
-  wsUrl: (location.protocol == 'https:' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
-  version: '0.0',
-  versionLink: 'https://github.com/sensoroni/sensoroni/releases/',
-  license: '',
-  licenseLink: 'https://raw.githubusercontent.com/sensoroni/sensoroni/master/LICENSE',
-  connectionTimeout: 5000,
-  ws: null,
-  subscriptions: [],
-};
 const routes = [];
 
-const methods = {};
-
-methods.loadInfo = async function() {
-  try {
-    const response = await papi.get('info');
-    data.version = response.data.version;
-    data.versionLink = "https://github.com/sensoroni/sensoroni/releases/tag/" + data.version;
-    data.license = response.data.license;
-  } catch (error) {
-    methods.showError(error);
-  }
-}
-
-methods.formatDateTime = function(date) {
-  var formatted = i18n.dateUnknown;
-  if (date) {
-    const dateObj = moment(String(date));
-    if (dateObj.isAfter('1000-01-01')) {
-      formatted = dateObj.format(data.i18n.dateTimeFormat);
-    }
-  }
-  return formatted;
-}
-
-methods.formatTimestamp = function(date) {
-  var formatted = i18n.dateUnknown;
-  if (date) {
-    const dateObj = moment(String(date));
-    if (dateObj.isAfter('1000-01-01')) {
-      formatted = dateObj.format(data.i18n.timestampFormat);
-    }
-  }
-  return formatted;
-}
-
-methods.formatDuration = function(duration) {
-  if (duration) {
-    return moment.duration(duration,"s").humanize();
-  }
-}
-
-methods.showError = function(msg) {
-  data.error = true;
-  data.message = msg;
-};
-
-methods.log = function(msg) {
-  console.log(msg);
-}
-
-methods.startLoading = function() {
-  data.loading = true;
-  data.error = false;
-};
-
-methods.stopLoading = function() {
-  data.loading = false;
-};
-
-methods.subscribe = function(kind, fn) {
-  var list = data.subscriptions[kind];
-  if (list == undefined) {
-    list = [];
-    data.subscriptions[kind] = list;
-  }
-  list.push(fn);
-};
-
-methods.publish = function(kind, obj) {
-  var listeners = data.subscriptions[kind];
-  if (listeners) {
-    listeners.forEach(function(listener) {
-      listener(obj);
-    });
-  }
-}
-
-methods.openWebsocket = function() {
-  if (data.ws == null || data.ws.readyState == WebSocket.CLOSED) {
-    methods.log("WebSocket connecting to " + data.wsUrl);
-    data.ws = new WebSocket(data.wsUrl);
-    data.ws.onopen = function(evt) {
-      methods.log("WebSocket connected");
-    };
-    data.ws.onclose = function(evt) {
-      methods.log("WebSocket closed, will attempt to reconnect");
-      data.ws = null;
-    };
-    data.ws.onmessage = function(evt) {
-      var msg = JSON.parse(evt.data);
-      methods.publish(msg.Kind, msg.Object);
-    };
-    data.ws.onerror = function(evt) {
-      methods.log("WebSocket failure: " + evt.data);
-    };
-  }
-};
-
 $(document).ready(function() {
-  Vue.filter('formatDateTime', methods.formatDateTime);
-  Vue.filter('formatDuration', methods.formatDuration);
-  Vue.filter('formatTimestamp', methods.formatTimestamp);
   const vmHead = new Vue({
     el: 'head',
-    data: data
-  });
-
-  const vuetifySettings = {
-    theme: {
-      dark: true,
-      options: {
-        customProperties: true,
-      },
+    data: {
+      i18n: i18n.getLocalizedTranslations(navigator.language),
     },
-  };
-
-  const router = new VueRouter({ routes });
+  });
   const vmMain = new Vue({
     el: '#app',
-    vuetify: new Vuetify(vuetifySettings),
-    router,
-    data,
-    methods
+    vuetify: new Vuetify({
+      theme: {
+        dark: true,
+        options: {
+          customProperties: true,
+        },
+      },
+    }),
+    router: new VueRouter({ routes }),
+    data: {
+      i18n: i18n.getLocalizedTranslations(navigator.language),
+      loading: false,
+      error: false,
+      message: "",
+      toolbar: null,
+      wsUrl: (location.protocol == 'https:' ?  'wss://' : 'ws://') + location.host + location.pathname + 'ws',
+      apiUrl: location.origin + location.pathname + 'api/',
+      version: '0.0',
+      versionLink: 'https://github.com/sensoroni/sensoroni/releases/',
+      license: '',
+      licenseLink: 'https://raw.githubusercontent.com/sensoroni/sensoroni/master/LICENSE',
+      papi: null,
+      connectionTimeout: 5000,
+      socket: null,
+      subscriptions: [],
+    },
+    watch: {
+      '$vuetify.theme.dark': 'saveLocalSettings',
+    },
+    methods: {
+      log(msg) {
+        console.log(msg);
+      },
+      async loadInfo() {
+        try {
+          const response = await papi.get('info');
+          this.version = response.data.version;
+          this.versionLink = "https://github.com/sensoroni/sensoroni/releases/tag/" + data.version;
+          this.license = response.data.license;
+        } catch (error) {
+          this.showError(error);
+        }
+      },
+      makeHeader(label, value) {
+        return { text: label, value: value };
+      },
+      formatDateTime(date) {
+        var formatted = this.i18n.dateUnknown;
+        if (date) {
+          const dateObj = moment(String(date));
+          if (dateObj.isAfter('1000-01-01')) {
+            formatted = dateObj.format(this.i18n.dateTimeFormat);
+          }
+        }
+        return formatted;
+      },
+      formatTimestamp(date) {
+        var formatted = this.i18n.dateUnknown;
+        if (date) {
+          const dateObj = moment(String(date));
+          if (dateObj.isAfter('1000-01-01')) {
+            formatted = dateObj.format(this.i18n.timestampFormat);
+          }
+        }
+        return formatted;
+      },
+      formatDuration(duration) {
+        if (duration) {
+          return moment.duration(duration,"s").humanize();
+        }
+      },
+      showError(msg) {
+        this.error = true;
+        this.message = msg;
+      },
+
+      startLoading() {
+        this.loading = true;
+        this.error = false;
+      },
+      stopLoading() {
+        this.loading = false;
+      },
+      saveLocalSettings() {
+        localStorage['settings.app.dark'] = this.$vuetify.theme.dark;
+      },
+      loadLocalSettings() {
+        if (localStorage['settings.app.dark'] != undefined) {
+          this.$vuetify.theme.dark = localStorage['settings.app.dark'] == "true";
+        }
+      },
+      subscribe(kind, fn) {
+        var list = this.subscriptions[kind];
+        if (list == undefined) {
+          list = [];
+          this.subscriptions[kind] = list;
+        }
+        list.push(fn);
+      },
+      publish(kind, obj) {
+        var listeners = this.subscriptions[kind];
+        if (listeners) {
+          listeners.forEach(function(listener) {
+            listener(obj);
+          });
+        }
+      },
+      openWebsocket() {
+        if (this.socket == null || this.socket.readyState == WebSocket.CLOSED) {
+          const vm = this;
+          this.log("WebSocket connecting to " + this.wsUrl);
+          this.socket = new WebSocket(this.wsUrl);
+          this.socket.onopen = function(evt) {
+            vm.log("WebSocket connected");
+          };
+          this.socket.onclose = function(evt) {
+            vm.log("WebSocket closed, will attempt to reconnect");
+            vm.socket = null;
+          };
+          this.socket.onmessage = function(evt) {
+            var msg = JSON.parse(evt.data);
+            vm.publish(msg.Kind, msg.Object);
+          };
+          this.socket.onerror = function(evt) {
+            vm.log("WebSocket failure: " + evt.data);
+          };
+        }
+      },
+    },
+    created() {
+      this.log("Initializing");
+      this.loadLocalSettings();
+      Vue.filter('formatDateTime', this.formatDateTime);
+      Vue.filter('formatDuration', this.formatDuration);
+      Vue.filter('formatTimestamp', this.formatTimestamp);
+      $('#app')[0].style.display = "block";
+      this.papi = axios.create({
+        baseURL: this.apiUrl,
+        timeout: this.connectionTimeout,
+      });
+      this.loadInfo();
+      this.openWebsocket();
+      window.setInterval(this.openWebsocket, this.connectionTimeout);
+      this.log("Initialization complete");
+    },
   });
-  $('#app')[0].style.display = "block";
-  methods.loadInfo();
-
-  methods.openWebsocket();
-  window.setInterval(methods.openWebsocket, data.connectionTimeout);
-});
-
-const papi = axios.create({
-  baseURL: data.apiUrl,
-  timeout: data.connectionTimeout
 });

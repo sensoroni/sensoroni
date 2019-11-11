@@ -10,36 +10,53 @@
 routes.push({ path: '/sensors', name: 'sensors', component: {
   template: '#page-sensors',
   data() { return {
-    i18n: i18n,
+    i18n: this.$root.i18n,
     sensors: [],
     headers: [
-      { text: i18n.id, value: 'id' },
-      { text: i18n.description, value: 'description' },
-      { text: i18n.version, value: 'version' },
-      { text: i18n.dateOnline, value: 'onlineTime' },
-      { text: i18n.dateUpdated, value: 'updateTime' },
-      { text: i18n.dateDataEpoch, value: 'epochTime' },
-      { text: i18n.uptime, value: 'uptimeSeconds' },
+      { text: this.$root.i18n.id, value: 'id' },
+      { text: this.$root.i18n.description, value: 'description' },
+      { text: this.$root.i18n.version, value: 'version' },
+      { text: this.$root.i18n.dateOnline, value: 'onlineTime' },
+      { text: this.$root.i18n.dateUpdated, value: 'updateTime' },
+      { text: this.$root.i18n.dateDataEpoch, value: 'epochTime' },
+      { text: this.$root.i18n.uptime, value: 'uptimeSeconds' },
     ],
     sortBy: 'id',
     sortDesc: false,
     itemsPerPage: 10,
+    footerProps: { 'items-per-page-options': [10,50,250,1000] },
   }},
   created() { this.loadData() },
   watch: {
-    '$route': 'loadData'
+    '$route': 'loadData',
+    'sortBy': 'saveLocalSettings',
+    'sortDesc': 'saveLocalSettings',
+    'itemsPerPage': 'saveLocalSettings',
   },
   methods: {
     async loadData() {
-      methods.startLoading();
+      this.$root.startLoading();
       try {
-        const response = await papi.get('sensors');
+        const response = await this.$root.papi.get('sensors');
         this.sensors = response.data;
+        this.loadLocalSettings();
       } catch (error) {
-        methods.showError(error);
+        this.$root.showError(error);
       }
-      methods.stopLoading();
-      methods.subscribe("sensor", this.updateSensor);
+      this.$root.stopLoading();
+      this.$root.subscribe("sensor", this.updateSensor);
+    },
+    saveLocalSettings() {
+      localStorage['settings.sensors.sortBy'] = this.sortBy;
+      localStorage['settings.sensors.sortDesc'] = this.sortDesc;
+      localStorage['settings.sensors.itemsPerPage'] = this.itemsPerPage;
+    },
+    loadLocalSettings() {
+      if (localStorage['settings.sensors.sortBy']) {
+        this.sortBy = localStorage['settings.sensors.sortBy'];
+        this.sortDesc = localStorage['settings.sensors.sortDesc'] == "true";
+        this.itemsPerPage = parseInt(localStorage['settings.sensors.itemsPerPage']);
+      }
     },
     updateSensor(sensor) {
       for (var i = 0; i < this.sensors.length; i++) {

@@ -75,12 +75,12 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-toolbar fixed app>
+            <v-toolbar fixed>
               <v-btn class="action" color="green" @click.stop="dialog = !dialog">
                 <v-icon>add</v-icon>
               </v-btn>
             </v-toolbar>
-            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="jobs">
+            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :footer-props="footerProps" :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="jobs">
               <template v-slot:item="props">
                 <router-link :to="{ name: 'job', params: {jobId: props.item.id}}" tag="tr">
                   <td v-text="props.item.id"></td>
@@ -177,7 +177,7 @@
         </v-row>
         <v-row v-if="job.status == 1">
           <v-col>
-            <v-toolbar fixed app>
+            <v-toolbar fixed>
               <v-text-field v-model="search" append-icon="search" :label="i18n.filterPackets" single-line hide-details></v-text-field>
               <v-spacer></v-spacer>
               <v-btn-toggle v-model="captureLayout" class="transparent" mandatory>
@@ -262,7 +262,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="sensors">
+            <v-data-table :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" :footer-props="footerProps"  :items-per-page.sync="itemsPerPage" must-sort :headers="headers" :items="sensors">
               <template v-slot:item="props">
                 <td v-text="props.item.id"></td>
                 <td v-text="props.item.description"></td>

@@ -10,14 +10,14 @@
 routes.push({ path: '/', name: 'jobs', component: {
   template: '#page-jobs',
   data() { return {
-    i18n: i18n,
+    i18n: this.$root.i18n,
     jobs: [],
     headers: [
-      { text: i18n.id, value: 'id' },
-      { text: i18n.dateQueued, value: 'createTime' },
-      { text: i18n.dateUpdated, value: 'updateTime' },
-      { text: i18n.sensorId, value: 'sensorId' },
-      { text: i18n.status, value: 'status' },
+      { text: this.$root.i18n.id, value: 'id' },
+      { text: this.$root.i18n.dateQueued, value: 'createTime' },
+      { text: this.$root.i18n.dateUpdated, value: 'updateTime' },
+      { text: this.$root.i18n.sensorId, value: 'sensorId' },
+      { text: this.$root.i18n.status, value: 'status' },
     ],
     sortBy: 'id',
     sortDesc: false,
@@ -33,6 +33,7 @@ routes.push({ path: '/', name: 'jobs', component: {
       beginTime: null,
       endTime: null,
     },
+    footerProps: { 'items-per-page-options': [10,50,250,1000] },
   }},
   created() {
     Vue.filter('formatJobStatus', this.formatJobStatus);
@@ -41,19 +42,35 @@ routes.push({ path: '/', name: 'jobs', component: {
     this.loadData()
   },
   watch: {
-    '$route': 'loadData'
+    '$route': 'loadData',
+    'sortBy': 'saveLocalSettings',
+    'sortDesc': 'saveLocalSettings',
+    'itemsPerPage': 'saveLocalSettings',
   },
   methods: {
     async loadData() {
-      methods.startLoading();
+      this.$root.startLoading();
       try {
-        const response = await papi.get('jobs');
+        const response = await this.$root.papi.get('jobs');
         this.jobs = response.data;
+        this.loadLocalSettings();
       } catch (error) {
-        methods.showError(error);
+        this.$root.showError(error);
       }
-      methods.stopLoading();
-      methods.subscribe("job", this.updateJob);
+      this.$root.stopLoading();
+      this.$root.subscribe("job", this.updateJob);
+    },
+    saveLocalSettings() {
+      localStorage['settings.jobs.sortBy'] = this.sortBy;
+      localStorage['settings.jobs.sortDesc'] = this.sortDesc;
+      localStorage['settings.jobs.itemsPerPage'] = this.itemsPerPage;
+    },
+    loadLocalSettings() {
+      if (localStorage['settings.jobs.sortBy']) {
+        this.sortBy = localStorage['settings.jobs.sortBy'];
+        this.sortDesc = localStorage['settings.jobs.sortDesc'] == "true";
+        this.itemsPerPage = parseInt(localStorage['settings.jobs.itemsPerPage']);
+      }
     },
     updateJob(job) {
       for (var i = 0; i < this.jobs.length; i++) {
@@ -77,9 +94,9 @@ routes.push({ path: '/', name: 'jobs', component: {
     async addJob(sensorId, srcIp, srcPort, dstIp, dstPort, beginTime, endTime) {
       try {
         if (!sensorId) {
-          methods.showError(this.i18n.sensorIdRequired);
+          this.$root.showError(this.i18n.sensorIdRequired);
         } else {
-          const response = await papi.post('job', {
+          const response = await this.$root.papi.post('job', {
             sensorId: sensorId,
             filter: {
               srcIp: srcIp,
@@ -93,7 +110,7 @@ routes.push({ path: '/', name: 'jobs', component: {
           this.jobs.push(response.data);
         }
       } catch (error) {
-         methods.showError(error);
+         this.$root.showError(error);
       }
     },
     formatJobUpdateTime(job) {
@@ -106,11 +123,11 @@ routes.push({ path: '/', name: 'jobs', component: {
       return time;
     },
     formatJobStatus(job) {
-      var status = i18n.pending;
+      var status = this.i18n.pending;
       if (job.status == 1) {
-        status = i18n.completed;
+        status = this.i18n.completed;
       } else if (job.status == 2) {
-        status = i18n.incomplete;
+        status = this.i18n.incomplete;
       }
       return status;
     },
