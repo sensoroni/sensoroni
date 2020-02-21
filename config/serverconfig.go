@@ -12,12 +12,14 @@ package config
 import (
   "errors"
   "github.com/sensoroni/sensoroni/module"
+  "strings"
 )
 
 const DEFAULT_MAX_PACKET_COUNT = 5000
 
 type ServerConfig struct {
   BindAddress               			string    												`json:"bindAddress"`
+  BaseUrl                         string                            `json:"baseUrl"`
   HtmlDir													string														`json:"htmlDir"`
   MaxPacketCount									int																`json:"maxPacketCount"`
   Modules													module.ModuleConfigMap						`json:"modules"`
@@ -31,6 +33,12 @@ func (config *ServerConfig) Verify() error {
   }
   if config.BindAddress == "" {
     err = errors.New("Server.BindAddress configuration value is required")
+  }
+  if strings.TrimSpace(config.BaseUrl) == ""{
+    config.BaseUrl = "/"
+  }
+  if config.BaseUrl[len(config.BaseUrl)-1] != '/' {
+    config.BaseUrl = config.BaseUrl + "/"
   }
   return err
 }

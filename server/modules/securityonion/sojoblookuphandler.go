@@ -42,10 +42,6 @@ func (handler *SoJobLookupHandler) HandleNow(writer http.ResponseWriter, request
 func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http.Request) (int, interface{}, error) {
   statusCode := http.StatusBadRequest
   esId := request.URL.Query().Get("esid")
-  redirectUrl := request.URL.Query().Get("redirectUrl")
-  if redirectUrl == "" {
-    redirectUrl = "/"
-  }
   sensorId, filter, err := handler.elastic.LookupEsId(esId)
   if err == nil {
     job := handler.server.Datastore.CreateJob()
@@ -55,7 +51,7 @@ func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http
     if err == nil {
       handler.Host.Broadcast("job", job)
       statusCode = http.StatusOK
-      redirectUrl = redirectUrl + "#/job/" + strconv.Itoa(job.Id)
+      redirectUrl := handler.server.Config.BaseUrl + "#/job/" + strconv.Itoa(job.Id)
       http.Redirect(writer, request, redirectUrl, http.StatusFound)
     }
   } else {
