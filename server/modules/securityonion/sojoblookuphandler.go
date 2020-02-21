@@ -43,8 +43,8 @@ func (handler *SoJobLookupHandler) get(writer http.ResponseWriter, request *http
   statusCode := http.StatusBadRequest
   esId := request.URL.Query().Get("esid")
   redirectUrl := request.URL.Query().Get("redirectUrl")
-  if redirectUrl == "" {
-    redirectUrl = "/"
+  if redirectUrl == "" || redirectUrl[0] != '/' {
+    redirectUrl = "/" + redirectUrl
   }
   sensorId, filter, err := handler.elastic.LookupEsId(esId)
   if err == nil {
